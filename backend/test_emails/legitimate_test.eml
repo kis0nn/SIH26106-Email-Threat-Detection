@@ -1,0 +1,16 @@
+Received: from mail.google.com (209.85.220.41) by mx.company.com; Sat, 6 Sep 2026 09:00:00 +0000
+From: John Smith <john.smith@gmail.com>
+To: colleague@company.com
+Return-Path: <john.smith@gmail.com>
+Subject: Meeting Tomorrow
+Message-ID: <real456@mail.gmail.com>
+Authentication-Results: mx.company.com; spf=pass; dkim=pass; dmarc=pass
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Hi,
+
+Just confirming our meeting tomorrow at 3 PM in the conference room.
+
+Best regards,
+John

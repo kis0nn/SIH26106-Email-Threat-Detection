@@ -1,0 +1,37 @@
+Received: from mail.paypa1-secure.tk (198.51.100.5) by mx.victim.com; Sat, 6 Sep 2026 10:00:00 +0000
+From: PayPal Support <support@paypa1-secure.tk>
+To: victim@example.com
+Reply-To: attacker@gmail.com
+Return-Path: <bounce@paypa1-secure.tk>
+Subject: Urgent: Verify Your Account Immediately
+Message-ID: <fake123@paypa1-secure.tk>
+Authentication-Results: mx.victim.com; spf=fail; dkim=fail; dmarc=fail
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="boundary123"
+
+--boundary123
+Content-Type: text/plain; charset="utf-8"
+
+Dear Customer,
+
+We detected unusual activity on your PayPal account. Your account will be suspended unless you verify your identity immediately.
+
+Click here now to confirm your payment details: http://paypa1-secure.tk/verify
+
+Act now - this link expires soon!
+
+PayPal Security Team
+
+--boundary123
+Content-Type: text/html; charset="utf-8"
+
+<html><body>
+<p>Dear Customer,</p>
+<p>We detected <b>unusual activity</b> on your PayPal account. Your account will be suspended unless you verify your identity immediately.</p>
+<p><a href="http://paypa1-secure.tk/verify">https://www.paypal.com/verify</a></p>
+<p><a href="http://bit.ly/3xFake">Click here now</a> to confirm your payment details.</p>
+<p>Act now - this link expires soon!</p>
+<p>PayPal Security Team</p>
+</body></html>
+
+--boundary123--

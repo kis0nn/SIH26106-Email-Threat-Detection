@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.env
+
+# Virtual environment
+venv/
+
+# SQLite database
+*.db
+
+# Node
+node_modules/
+.vite/
+
+# Build output (frontend)
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Gemini
+.gemini/
+
+# Prompt files (keep these private)
+*_PROMPT.md
+*_Master_Brief.md
