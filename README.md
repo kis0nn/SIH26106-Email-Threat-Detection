@@ -1,129 +1,135 @@
 # SIH26106 — AI-Powered Email Threat Detection, GeoLocation & Forensic Intelligence Platform
 
-> **Smart India Hackathon 2026** | Problem Statement ID: 26106  
+> **Smart India Hackathon 2026** | **Problem Statement ID:** 26106  
 > **Organization:** All India Council for Technical Education (Cyber Security Cell)  
 > **Category:** Software | **Theme:** Blockchain & Cybersecurity
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Open_App-brightgreen?style=for-the-badge&logo=vercel)](https://github.com)
-[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Automated_Deploy-blue?style=for-the-badge&logo=github)](https://github.com)
+---
+
+### 🌐 Live Interactive Demo
+🚀 **Access the Live Web Application:**  
+**`https://<YOUR-GITHUB-USERNAME>.github.io/<YOUR-REPO-NAME>/`**  
+*(Automated deployment configured via GitHub Pages — runs full forensic evaluation in any web browser!)*
 
 ---
 
-## 🛡️ Overview
+## 🛡️ Executive Summary
 
-A web-based forensic intelligence platform that analyzes any email for fraud, phishing, and impersonation — tracing headers, sender location, and domain/brand reputation to generate investigator-ready reports.
+Current email security systems primarily filter or block suspicious content but provide limited intelligence for forensic tracing of email origins and sender infrastructure. 
 
-## 🌐 Live Web Deployment & PPT Demo
-
-This platform is ready to be hosted on the web with **one-click live testing**:
-
-### Option 1: Render (Recommended — 100% Free Full-Stack)
-Render builds both the React Frontend and FastAPI Backend into **a single live URL**:
-1. Push your repository to GitHub.
-2. Log in to [render.com](https://render.com) (free).
-3. Click **New +** → **Blueprint** → Select this repository.
-4. Render automatically reads `render.yaml` and deploys your full app at:
-   `https://your-app-name.onrender.com`
-5. Copy that link into your PPT presentation and GitHub repo **About** section!
-
-### Option 2: GitHub Pages (Automated Workflow Included)
-An automated GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) is already configured:
-1. In your GitHub repository, go to **Settings** → **Pages**.
-2. Under **Build and deployment** → **Source**, select **GitHub Actions**.
-3. Push to `main` — GitHub will automatically build and host the UI at:
-   `https://<your-username>.github.io/<your-repo-name>/`
+**SIH26106** is an end-to-end intelligence platform that:
+1. Performs deep structural parsing of RFC 822 email headers and body.
+2. Applies a multi-vector fraudulent email detection engine (typosquatting, display-name spoofing, suspicious TLDs, link redirects, and social-engineering urgency heuristics).
+3. Reconstructs transmission relay chains and origin geolocation.
+4. Generates investigator-ready risk classifications and visual intelligence.
 
 ---
 
-## 🏗️ Architecture
+## 📸 Key Features & Dashboard Overview
+
+- **Dynamic Risk Badge**: Color-coded risk grading (Low / Medium / High Risk) with numeric threat index.
+- **Header Authentication Analysis**: Instant cryptographic verification for SPF, DKIM, DMARC, and Return-Path.
+- **Forensic Findings Timeline**: Granular breakdown of detected anomalies with individual threat contributions.
+- **Origin Geolocation Mapping**: Interactive Leaflet.js map plotting sender IP, geographical coordinates, and ISP infrastructure.
+- **Domain Intelligence Card**: Domain registration telemetry, registrar identification, and newly-registered domain alert badges.
+- **Relay Hop Visualization**: Step-by-step timeline of mail transfer agent (MTA) transmission hops.
+- **1-Click Demo Samples**: Pre-loaded phishing and safe email samples for instant demonstration during presentations.
+
+---
+
+## 🏗️ System Architecture
 
 ```
-[Input: .eml file upload / raw source paste / 1-click demo sample]
-        ↓
-[Backend — POST /analyze pipeline]
-  1. Email Parser → headers, body, links, SPF/DKIM/DMARC, relay chain
-  2. Detection Engine → rule-based checks → fraud score + findings
-  3. Forensic Intelligence → IP geolocation, WHOIS, Safe Browsing
-        ↓
-[Frontend Dashboard]
-  Risk badge, findings list, header analysis, relay path,
-  geolocation map, domain intel
+[Input: .eml File Upload / Raw RFC 822 Source / 1-Click Demo]
+                         │
+                         ▼
+        ┌──────────────────────────────────┐
+        │       FastAPI Core Pipeline      │
+        │       (or In-Browser Fallback)   │
+        └────────────────┬─────────────────┘
+                         │
+         ┌───────────────┼───────────────┐
+         ▼               ▼               ▼
+   [Email Parser] [Fraud Engine] [Forensics Engine]
+   • Headers      • Typosquat    • IP Geolocation
+   • Relay Hops   • Spoofing     • WHOIS Intel
+   • Links & Body • Urgency NLP  • Safe Browsing
+         └───────────────┬───────────────┘
+                         │
+                         ▼
+     [Interactive Forensic Intelligence Dashboard]
+     (Risk Score • Header Auth • Leaflet Map • Relay Path)
 ```
 
-## 🚀 Tech Stack
+---
 
-| Layer | Technology |
-|-------|-----------|
-| **Backend** | Python, FastAPI, Uvicorn, SQLite |
-| **Frontend** | React, Vite, Tailwind CSS, Leaflet.js |
-| **Detection** | RapidFuzz (Levenshtein), Regex NLP |
-| **Forensic APIs** | ip-api.com (geolocation), python-whois, Google Safe Browsing |
-| **DevOps** | Docker, Render Blueprint, GitHub Actions |
+## 🔍 Detection Engine Heuristics
 
-## 📦 Local Development
+| Security Check | Contribution | Method & Rationale |
+|:---|:---:|:---|
+| **Lookalike Domain Detection** | `+20 pts` | Levenshtein distance ratio against 20+ monitored enterprise & banking brands |
+| **Display-Name Spoofing** | `+15 pts` | Identifies brand claims in header display names originating from unauthorized domains |
+| **Suspicious TLD Screening** | `+10 pts` | Flags high-abuse top-level domains (`.tk`, `.ml`, `.ga`, `.ru`, `.xyz`, etc.) |
+| **Link vs. Href Mismatch** | `+20 pts` | Compares visible link text with destination URLs to detect deceitful redirects |
+| **Obfuscated / Shortened URLs**| `+15 pts` | Identifies URL shorteners (bit.ly, tinyurl) and raw IP-based web addresses |
+| **Urgency & Social Engineering** | `+15 pts` | Heuristic NLP scanning for coercion patterns ("account suspended", "verify immediately") |
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
+**Threat Classification Thresholds:**
+- 🟢 `0 – 29 pts` : **Low Risk / Looks Safe**
+- 🟡 `30 – 59 pts` : **Medium Risk / Caution**
+- 🔴 `60 – 100 pts`: **High Risk / Malicious Threat**
 
-### 1. Backend
+---
+
+## 🚀 Deployment Guide
+
+### Option 1: Automated GitHub Pages (1-Click Client Deployment)
+This repository includes a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) and an in-browser forensic engine:
+1. Push this repository to your GitHub account:
+   ```bash
+   git remote add origin https://github.com/<YOUR-USERNAME>/<YOUR-REPO-NAME>.git
+   git branch -M main
+   git push -u origin main
+   ```
+2. On GitHub, navigate to **Settings** → **Pages**.
+3. Under **Build and deployment** → **Source**, select **GitHub Actions**.
+4. Within 60 seconds, your site will be live at:  
+   `https://<YOUR-USERNAME>.github.io/<YOUR-REPO-NAME>/`
+
+### Option 2: Full-Stack Cloud Deployment (Render / Docker)
+For running both the Python FastAPI backend and React frontend together on a single cloud service:
+- Connect the repo to [Render.com](https://render.com) using the included `render.yaml` or `Dockerfile`.
+
+### Option 3: Local Development
+**Backend:**
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # macOS/Linux
+venv\Scripts\activate          # On Windows
+# source venv/bin/activate     # On Linux/macOS
 pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-### 2. Frontend
+**Frontend:**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** (or **http://localhost:8000** when serving frontend through FastAPI).
+---
+
+## 🧪 Benchmark Verification
+
+| Sample Test | Fraud Score | Risk Level | Highlights |
+|:---|:---:|:---:|:---|
+| `phishing_test.eml` | **70** | 🔴 **High Risk** | 9 findings: Lookalike domain, spoofed PayPal identity, link target mismatch, suspicious TLD, failed SPF/DKIM/DMARC |
+| `legitimate_test.eml` | **0** | 🟢 **Looks Safe** | 0 findings: Clean headers, passing SPF/DKIM/DMARC authentication |
 
 ---
 
-## 🔍 Detection Capabilities
+## 📄 Compliance & License
 
-| Check | Points | Description |
-|-------|--------|-------------|
-| Lookalike Domain | +20 | Levenshtein distance against 21 known brands |
-| Display-Name Spoofing | +15 | Brand name in display name but wrong domain |
-| Suspicious TLD | +10 | .tk, .ml, .ga, .ru, .xyz, etc. |
-| Link Mismatch | +20 | Visible URL differs from actual href |
-| Obfuscated URLs | +15 | Shorteners, raw IPs, hex encoding |
-| Urgency Language | +15 | "verify your account", "act now", etc. |
-
-**Risk Levels:** 0-29 = Low (Safe) · 30-59 = Medium (Caution) · 60-100 = High Risk
-
----
-
-## 📊 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/health` | Health check |
-| `POST` | `/analyze` | Analyze email (.eml upload or JSON) |
-
----
-
-## 🧪 Test Results
-
-| Email | Score | Risk | Findings |
-|-------|-------|------|----------|
-| Phishing (`paypa1-secure.tk`) | 70 | 🔴 High Risk | 9 findings (typosquatting, link mismatch, suspicious TLD, urgency language) |
-| Legitimate (`gmail.com`) | 0 | 🟢 Looks Safe | 0 findings (all SPF/DKIM/DMARC pass) |
-
----
-
-## 👥 Team
-
-> _Add your team name and members here_
-
-## 📄 License
-
-This project was built for SIH 2026. All rights reserved.
+Developed for the **Smart India Hackathon (SIH 2026)**.  
+Licensed under the [MIT License](LICENSE).
