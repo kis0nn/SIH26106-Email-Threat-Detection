@@ -61,6 +61,26 @@ Current email security systems primarily filter or block suspicious content but 
      (Risk Score • Header Auth • Leaflet Map • Relay Path)
 ```
 
+### 📁 Repository Structure
+
+```
+SIH26106-Email-Threat-Detection/
+├── backend/          # [CORE PLATFORM] Python FastAPI backend & forensic detection engine
+│   ├── main.py       # REST API endpoints (/analyze, /health) & static serving
+│   ├── parser.py     # RFC 822 email & header parser
+│   ├── detection.py  # 6-vector rule-based fraud detection engine
+│   ├── forensics.py  # IP geolocation, WHOIS, and threat lookups
+│   └── database.py   # SQLite forensic case persistence
+│
+├── frontend/         # [PRIMARY UI] React + Vite + Tailwind CSS web dashboard
+│   ├── src/          # Dashboard components (Map, Badges, Relay, Findings)
+│   └── public/       # Visual branding assets & icons
+│
+└── extension/        # [INPUT LAYER] Manifest V3 Chrome Extension for webmail
+    ├── manifest.json # Chrome Extension Manifest V3 configuration
+    └── README.md     # Extension architecture & Tier 2/3 roadmap
+```
+
 ---
 
 ## 🔍 Detection Engine Heuristics

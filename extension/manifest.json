@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "SIH26106 Email Threat Forensics",
+  "version": "1.0.0",
+  "description": "Chrome Extension (Convenience Input Layer) for 1-click email threat analysis directly within Gmail.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "http://localhost:8000/*",
+    "https://*.onrender.com/*"
+  ],
+  "action": {
+    "default_title": "Analyze Email Threat",
+    "default_popup": "popup.html"
+  }
+}
