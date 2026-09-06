@@ -8,7 +8,7 @@
 
 ### 🌐 Live Interactive Demo
 🚀 **Access the Live Web Application:**  
-**`https://<YOUR-GITHUB-USERNAME>.github.io/<YOUR-REPO-NAME>/`**  
+**[https://kis0nn.github.io/SIH26106-Email-Threat-Detection/](https://kis0nn.github.io/SIH26106-Email-Threat-Detection/)**  
 *(Automated deployment configured via GitHub Pages — runs full forensic evaluation in any web browser!)*
 
 ---
@@ -87,14 +87,14 @@ Current email security systems primarily filter or block suspicious content but 
 This repository includes a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) and an in-browser forensic engine:
 1. Push this repository to your GitHub account:
    ```bash
-   git remote add origin https://github.com/<YOUR-USERNAME>/<YOUR-REPO-NAME>.git
+   git remote add origin https://github.com/kis0nn/SIH26106-Email-Threat-Detection.git
    git branch -M main
    git push -u origin main
    ```
 2. On GitHub, navigate to **Settings** → **Pages**.
 3. Under **Build and deployment** → **Source**, select **GitHub Actions**.
 4. Within 60 seconds, your site will be live at:  
-   `https://<YOUR-USERNAME>.github.io/<YOUR-REPO-NAME>/`
+   `https://kis0nn.github.io/SIH26106-Email-Threat-Detection/`
 
 ### Option 2: Full-Stack Cloud Deployment (Render / Docker)
 For running both the Python FastAPI backend and React frontend together on a single cloud service:
