@@ -4,14 +4,41 @@
 > **Organization:** All India Council for Technical Education (Cyber Security Cell)  
 > **Category:** Software | **Theme:** Blockchain & Cybersecurity
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Open_App-brightgreen?style=for-the-badge&logo=vercel)](https://github.com)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Automated_Deploy-blue?style=for-the-badge&logo=github)](https://github.com)
+
+---
+
 ## 🛡️ Overview
 
 A web-based forensic intelligence platform that analyzes any email for fraud, phishing, and impersonation — tracing headers, sender location, and domain/brand reputation to generate investigator-ready reports.
 
+## 🌐 Live Web Deployment & PPT Demo
+
+This platform is ready to be hosted on the web with **one-click live testing**:
+
+### Option 1: Render (Recommended — 100% Free Full-Stack)
+Render builds both the React Frontend and FastAPI Backend into **a single live URL**:
+1. Push your repository to GitHub.
+2. Log in to [render.com](https://render.com) (free).
+3. Click **New +** → **Blueprint** → Select this repository.
+4. Render automatically reads `render.yaml` and deploys your full app at:
+   `https://your-app-name.onrender.com`
+5. Copy that link into your PPT presentation and GitHub repo **About** section!
+
+### Option 2: GitHub Pages (Automated Workflow Included)
+An automated GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) is already configured:
+1. In your GitHub repository, go to **Settings** → **Pages**.
+2. Under **Build and deployment** → **Source**, select **GitHub Actions**.
+3. Push to `main` — GitHub will automatically build and host the UI at:
+   `https://<your-username>.github.io/<your-repo-name>/`
+
+---
+
 ## 🏗️ Architecture
 
 ```
-[Input: .eml file upload / raw source paste]
+[Input: .eml file upload / raw source paste / 1-click demo sample]
         ↓
 [Backend — POST /analyze pipeline]
   1. Email Parser → headers, body, links, SPF/DKIM/DMARC, relay chain
@@ -30,15 +57,16 @@ A web-based forensic intelligence platform that analyzes any email for fraud, ph
 | **Backend** | Python, FastAPI, Uvicorn, SQLite |
 | **Frontend** | React, Vite, Tailwind CSS, Leaflet.js |
 | **Detection** | RapidFuzz (Levenshtein), Regex NLP |
-| **APIs** | ip-api.com (geolocation), python-whois, Google Safe Browsing |
+| **Forensic APIs** | ip-api.com (geolocation), python-whois, Google Safe Browsing |
+| **DevOps** | Docker, Render Blueprint, GitHub Actions |
 
-## 📦 Quick Start
+## 📦 Local Development
 
 ### Prerequisites
 - Python 3.10+
 - Node.js 18+
 
-### Backend
+### 1. Backend
 ```bash
 cd backend
 python -m venv venv
@@ -48,14 +76,16 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-### Frontend
+### 2. Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** in your browser.
+Open **http://localhost:5173** (or **http://localhost:8000** when serving frontend through FastAPI).
+
+---
 
 ## 🔍 Detection Capabilities
 
@@ -70,6 +100,8 @@ Open **http://localhost:5173** in your browser.
 
 **Risk Levels:** 0-29 = Low (Safe) · 30-59 = Medium (Caution) · 60-100 = High Risk
 
+---
+
 ## 📊 API Endpoints
 
 | Method | Endpoint | Description |
@@ -77,12 +109,16 @@ Open **http://localhost:5173** in your browser.
 | `GET` | `/health` | Health check |
 | `POST` | `/analyze` | Analyze email (.eml upload or JSON) |
 
+---
+
 ## 🧪 Test Results
 
 | Email | Score | Risk | Findings |
 |-------|-------|------|----------|
-| Phishing (paypa1-secure.tk) | 70 | 🔴 High Risk | 9 findings |
-| Legitimate (gmail.com) | 0 | 🟢 Looks Safe | 0 findings |
+| Phishing (`paypa1-secure.tk`) | 70 | 🔴 High Risk | 9 findings (typosquatting, link mismatch, suspicious TLD, urgency language) |
+| Legitimate (`gmail.com`) | 0 | 🟢 Looks Safe | 0 findings (all SPF/DKIM/DMARC pass) |
+
+---
 
 ## 👥 Team
 

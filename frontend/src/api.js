@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000';
+// When deployed on same server (Render / Docker), API_BASE is relative ('').
+// When deployed on GitHub Pages or Vercel, VITE_API_URL can point to the hosted backend.
+// In local development, falls back to http://localhost:8000.
+const API_BASE = import.meta.env.VITE_API_URL !== undefined
+  ? import.meta.env.VITE_API_URL
+  : (import.meta.env.PROD ? '' : 'http://localhost:8000');
 
 export const analyzeEmail = async (file) => {
   const formData = new FormData();
