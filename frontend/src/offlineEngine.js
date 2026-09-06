@@ -157,7 +157,7 @@ export function analyzeEmailClientSide(rawEmail) {
       check: "Suspicious TLD",
       severity: "medium",
       score_contribution: 10,
-      detail: `Sender domain uses high-abuse TLD associated with disposable phishing campaigns.`
+      detail: `Sender domain uses high-abuse TLD (${domain.slice(domain.lastIndexOf('.'))}) associated with disposable phishing infrastructure.`
     });
   }
 
@@ -204,13 +204,13 @@ export function analyzeEmailClientSide(rawEmail) {
   // Urgency patterns
   const urgencyPatterns = [
     { regex: /verify\s+your\s+account/i, name: "verify your account" },
-    { regex: /account\s+(?:suspended|closed|locked)/i, name: "account suspension threat" },
+    { regex: /account\s+(?:suspended|closed|locked|access\s+restricted)/i, name: "account suspension threat" },
     { regex: /immediate\s+action/i, name: "immediate action pressure" },
     { regex: /unusual\s+activity/i, name: "unusual activity alert" },
     { regex: /wire\s+transfer/i, name: "wire transfer request" },
     { regex: /confirm\s+your\s+(?:password|details|payment)/i, name: "credentials confirmation" },
     { regex: /click\s+here\s+now/i, name: "call-to-action click urgency" },
-    { regex: /act\s+now|expires?\s+soon/i, name: "time expiration constraint" }
+    { regex: /act\s+now|expires?\s+soon|limited\s+time/i, name: "time expiration constraint" }
   ];
 
   let urgencyScore = 0;
@@ -230,23 +230,63 @@ export function analyzeEmailClientSide(rawEmail) {
   fraudScore = Math.min(100, fraudScore);
   const riskLevel = fraudScore < 30 ? "low" : (fraudScore < 60 ? "medium" : "high");
 
-  // Geolocation mock/estimate
+  // Geolocation routing based on sample identity
   const originIp = hops[0]?.ip || '198.51.100.5';
-  const geo = domain === 'gmail.com' ? {
-    ip: originIp,
-    country: "United States",
-    city: "Mountain View",
-    lat: 37.3861,
-    lon: -122.084,
-    isp: "Google LLC"
-  } : {
-    ip: originIp,
-    country: "Romania",
-    city: "Bucharest",
-    lat: 44.4267,
-    lon: 26.1025,
-    isp: "Autonomous Transit Network"
-  };
+  let geo;
+  let domainAge = 4;
+  let isNew = true;
+  let registrar = "Freenom Domains Ltd";
+  let createdDate = "2026-09-02";
+
+  if (domain === 'gmail.com') {
+    geo = {
+      ip: originIp,
+      country: "United States",
+      city: "Mountain View",
+      lat: 37.3861,
+      lon: -122.084,
+      isp: "Google LLC"
+    };
+    domainAge = 7840;
+    isNew = false;
+    registrar = "MarkMonitor Inc.";
+    createdDate = "2004-04-01";
+  } else if (domain.includes('sbi') || text.includes('SBI')) {
+    geo = {
+      ip: originIp,
+      country: "Russian Federation",
+      city: "Moscow",
+      lat: 55.7558,
+      lon: 37.6173,
+      isp: "Bulletproof Hosting Services"
+    };
+    domainAge = 3;
+    isNew = true;
+    registrar = "Namecheap Inc.";
+    createdDate = "2026-09-03";
+  } else if (domain.includes('vendor') || domain.includes('billing')) {
+    geo = {
+      ip: originIp,
+      country: "United Kingdom",
+      city: "London",
+      lat: 51.5074,
+      lon: -0.1278,
+      isp: "Cloud Transit UK Ltd"
+    };
+    domainAge = 195;
+    isNew = false;
+    registrar = "GoDaddy.com LLC";
+    createdDate = "2026-02-23";
+  } else {
+    geo = {
+      ip: originIp,
+      country: "Romania",
+      city: "Bucharest",
+      lat: 44.4267,
+      lon: 26.1025,
+      isp: "Autonomous Transit Network"
+    };
+  }
 
   return {
     id: "demo-" + Math.random().toString(36).substring(2, 9),
@@ -274,10 +314,10 @@ export function analyzeEmailClientSide(rawEmail) {
     geolocation: geo,
     domain_intel: {
       domain: domain,
-      age_days: domain === 'gmail.com' ? 7840 : 4,
-      is_newly_registered: domain !== 'gmail.com',
-      registrar: domain === 'gmail.com' ? "MarkMonitor Inc." : "Freenom Domains Ltd",
-      created_date: domain === 'gmail.com' ? "2004-04-01" : "2026-09-02"
+      age_days: domainAge,
+      is_newly_registered: isNew,
+      registrar: registrar,
+      created_date: createdDate
     },
     is_client_fallback: true
   };

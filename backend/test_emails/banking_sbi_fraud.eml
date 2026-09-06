@@ -1,0 +1,20 @@
+Received: from mail.sbi-secure-portal.xyz (185.220.101.42) by mx.victim.com; Sun, 7 Sep 2026 04:15:00 +0000
+From: SBI Online Alerts <alerts@sbi-secure-portal.xyz>
+To: user@example.com
+Reply-To: sbi-support@sbi-secure-portal.xyz
+Return-Path: <no-reply@sbi-secure-portal.xyz>
+Subject: Critical: SBI NetBanking Access Restricted - Immediate Action Required
+Message-ID: <sbi9910@sbi-secure-portal.xyz>
+Authentication-Results: mx.victim.com; spf=fail; dkim=none; dmarc=none
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Dear State Bank of India Customer,
+
+We noticed unusual activity on your SBI NetBanking portal. Your account access will be suspended within 24 hours.
+
+Immediate action is required. Please verify your account credentials and confirm your password by clicking the official portal:
+http://sbi-secure-portal.xyz/kyc-update
+
+Regards,
+State Bank of India Security Division

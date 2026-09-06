@@ -1,0 +1,19 @@
+Received: from mail.vendor-billing-corp.com (104.244.42.1) by mx.victim.com; Sun, 7 Sep 2026 06:30:00 +0000
+From: Accounts Receivable <billing@vendor-billing-corp.com>
+To: finance@victim.com
+Reply-To: payment-desk@vendor-billing-corp.com
+Return-Path: <billing@vendor-billing-corp.com>
+Subject: Urgent: Overdue Invoice Payment & Wire Transfer Required
+Message-ID: <inv8821@vendor-billing-corp.com>
+Authentication-Results: mx.victim.com; spf=pass; dkim=none; dmarc=none
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Hello Finance Team,
+
+Please find attached the updated payment schedule. Immediate action is required to avoid service interruption.
+
+Kindly confirm your payment and initiate the wire transfer today. Limited time remains before late penalties are applied.
+
+Thank you,
+Accounting Department
