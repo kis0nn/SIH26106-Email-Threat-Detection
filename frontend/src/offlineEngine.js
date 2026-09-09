@@ -245,7 +245,8 @@ export function analyzeEmailClientSide(rawEmail) {
       city: "Mountain View",
       lat: 37.3861,
       lon: -122.084,
-      isp: "Google LLC"
+      isp: "Google LLC",
+      org: "Google LLC"
     };
     domainAge = 7840;
     isNew = false;
@@ -258,7 +259,8 @@ export function analyzeEmailClientSide(rawEmail) {
       city: "Moscow",
       lat: 55.7558,
       lon: 37.6173,
-      isp: "Bulletproof Hosting Services"
+      isp: "Bulletproof Hosting Services",
+      org: "Bulletproof LLC"
     };
     domainAge = 3;
     isNew = true;
@@ -271,7 +273,8 @@ export function analyzeEmailClientSide(rawEmail) {
       city: "London",
       lat: 51.5074,
       lon: -0.1278,
-      isp: "Cloud Transit UK Ltd"
+      isp: "Cloud Transit UK Ltd",
+      org: "Cloud Transit Holdings"
     };
     domainAge = 195;
     isNew = false;
@@ -284,18 +287,75 @@ export function analyzeEmailClientSide(rawEmail) {
       city: "Bucharest",
       lat: 44.4267,
       lon: 26.1025,
-      isp: "Autonomous Transit Network"
+      isp: "Autonomous Transit Network",
+      org: "AT Network SRL"
     };
   }
 
+  // Tier 2: Government domain detection
+  const govKeywords = ['income tax', 'incometax', 'police', 'uidai', 'aadhaar', 'pan', 'gst', 'rbi', 'sbi', 'government', 'ministry'];
+  const govDomains = ['.gov.in', '.nic.in'];
+  const isGov = govDomains.some(d => domain.endsWith(d));
+  const claimsGov = govKeywords.some(kw => (displayName.toLowerCase() + ' ' + text.slice(0, 500).toLowerCase()).includes(kw));
+
+  // Tier 2: Brand trust (simplified client-side)
+  let brandTrust = null;
+  for (const [brand, brandDomain] of Object.entries(KNOWN_BRANDS)) {
+    if (displayName.toLowerCase().includes(brand)) {
+      const domainMatch = domain === brandDomain;
+      const isTypo = findings.some(f => f.check === "Lookalike domain");
+      let trustScore = 50;
+      if (domainMatch) trustScore += 30;
+      if (isTypo) trustScore -= 40;
+      if (isNew) trustScore -= 20;
+      trustScore = Math.max(0, Math.min(100, trustScore));
+      brandTrust = {
+        claimed_brand: brand.charAt(0).toUpperCase() + brand.slice(1),
+        brand_verified: true,
+        official_domain: brandDomain,
+        brand_trust_score: trustScore,
+        explanation: domainMatch
+          ? `Claims to be ${brand} and domain matches official domain.`
+          : `Claims to be ${brand} but sent from ${isTypo ? 'typosquatted' : 'unauthorized'} domain.`
+      };
+      break;
+    }
+  }
+
+  // Tier 2: Blockchain receipt (simulated client-side)
+  const analysisId = "demo-" + Math.random().toString(36).substring(2, 9);
+  const fakeHash = () => Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+  const blockchainReceipt = {
+    block_index: Math.floor(Math.random() * 100) + 1,
+    analysis_hash: fakeHash(),
+    previous_block_hash: fakeHash(),
+    block_hash: fakeHash(),
+    timestamp: new Date().toISOString()
+  };
+
+  // Add simulated location to hops
+  const hopLocations = [
+    { country: "India", city: "Mumbai" },
+    { country: "Singapore", city: "Singapore" },
+    { country: "Germany", city: "Frankfurt" },
+    { country: "United States", city: "New York" },
+  ];
+  hops.forEach((hop, i) => {
+    const loc = hopLocations[i % hopLocations.length];
+    hop.country = loc.country;
+    hop.city = loc.city;
+  });
+
   return {
-    id: "demo-" + Math.random().toString(36).substring(2, 9),
+    id: analysisId,
     created_at: new Date().toISOString(),
     sender: {
       display_name: displayName,
       email: emailAddr,
       domain: domain,
-      reply_to: replyTo
+      reply_to: replyTo,
+      is_gov: isGov,
+      claims_gov: claimsGov
     },
     subject: subject,
     fraud_score: fraudScore,
@@ -319,6 +379,9 @@ export function analyzeEmailClientSide(rawEmail) {
       registrar: registrar,
       created_date: createdDate
     },
+    brand_trust: brandTrust,
+    blockchain_receipt: blockchainReceipt,
     is_client_fallback: true
   };
 }
+

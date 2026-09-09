@@ -11,7 +11,7 @@ export const analyzeEmail = async (file) => {
     formData.append('file', file);
     const response = await axios.post(`${API_BASE}/analyze`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      timeout: 6000,
+      timeout: 15000,
     });
     return response.data;
   } catch (err) {
@@ -25,7 +25,7 @@ export const analyzeRawEmail = async (rawEmail) => {
   try {
     const response = await axios.post(`${API_BASE}/analyze`, { raw_email: rawEmail }, {
       headers: { 'Content-Type': 'application/json' },
-      timeout: 6000,
+      timeout: 15000,
     });
     return response.data;
   } catch (err) {
@@ -42,3 +42,19 @@ export const checkHealth = async () => {
     return { status: 'offline', mode: 'client-fallback' };
   }
 };
+
+export const verifyChain = async (analysisId) => {
+  const response = await axios.get(`${API_BASE}/verify/${analysisId}`, { timeout: 10000 });
+  return response.data;
+};
+
+export const downloadReport = async (analysisId, maskPii = false) => {
+  const response = await axios.post(
+    `${API_BASE}/report/${analysisId}?mask_pii=${maskPii}`,
+    null,
+    { responseType: 'blob', timeout: 30000 }
+  );
+  return response.data;
+};
+
+export { API_BASE };

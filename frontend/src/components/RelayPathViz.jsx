@@ -1,5 +1,5 @@
 import React from 'react';
-import { Server, Share2 } from 'lucide-react';
+import { Server, Share2, MapPin } from 'lucide-react';
 
 const RelayPathViz = ({ relayAnalysis }) => {
   if (!relayAnalysis || !relayAnalysis.hops || relayAnalysis.hops.length === 0) {
@@ -45,6 +45,15 @@ const RelayPathViz = ({ relayAnalysis }) => {
                   <span className="text-gray-500 block">Timestamp</span>
                   <span className="text-gray-700">{hopData.timestamp ? new Date(hopData.timestamp).toLocaleString() : 'Unknown'}</span>
                 </div>
+                {(hopData.country || hopData.city) && (
+                  <div className="sm:col-span-2">
+                    <span className="text-gray-500 block">Location</span>
+                    <span className="text-gray-700 flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-blue-500" />
+                      {hopData.city ? `${hopData.city}, ` : ''}{hopData.country || 'Unknown'}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

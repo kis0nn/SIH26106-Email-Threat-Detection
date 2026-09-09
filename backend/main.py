@@ -1,17 +1,26 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 import uuid
 import datetime
 import os
+import logging
 from typing import Optional
 
 from database import init_db, save_analysis, get_analysis
 from parser import parse_email
-from detection import run_detection
-from forensics import get_ip_geolocation, get_domain_intel, check_safe_browsing
+from detection import run_detection, KNOWN_BRANDS
+from forensics import get_ip_geolocation, get_domain_intel, check_safe_browsing, batch_geolocate_ips
+from nlp_scoring import run_nlp_scoring, is_available as nlp_is_available
+from brand_verification import verify_brand
+from blockchain import create_block, verify_chain
+from gov_detection import check_gov_domain
+from report_generator import generate_pdf
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="SIH26106 Email Threat Detection API")
 
@@ -27,10 +36,17 @@ app.add_middleware(
 @app.on_event("startup")
 def startup_event():
     init_db()
+    if nlp_is_available():
+        logger.info("🧠 NLP phishing classifier is ACTIVE — enhanced detection mode")
+    else:
+        logger.info("📋 NLP model unavailable — using rule-based detection only")
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "nlp_model": "active" if nlp_is_available() else "unavailable",
+    }
 
 class RawEmailRequest(BaseModel):
     raw_email: str
@@ -40,41 +56,127 @@ def _run_analysis(email_content: str) -> dict:
     parsed = parse_email(email_content)
     detection = run_detection(parsed)
 
+    fraud_score = detection.get("fraud_score", 0)
+    findings = detection.get("findings", [])
+
+    # ── NLP Scoring (Tier 2) ────────────────────────────────────────────────
+    nlp_text = (parsed.get("subject", "") or "") + " " + (parsed.get("text_body", "") or "") + " " + (parsed.get("html_body", "") or "")
+    nlp_result = run_nlp_scoring(nlp_text)
+    if nlp_result:
+        fraud_score += nlp_result["score_contribution"]
+        findings.append({
+            "check": "nlp_classifier",
+            "severity": nlp_result["severity"],
+            "score_contribution": nlp_result["score_contribution"],
+            "detail": nlp_result["detail"],
+        })
+
+    # Cap score at 100 and recompute risk level
+    fraud_score = min(100, fraud_score)
+    if fraud_score < 30:
+        risk_level = "low"
+    elif fraud_score < 60:
+        risk_level = "medium"
+    else:
+        risk_level = "high"
+
+    # ── Geolocation (Tier 1 + Tier 2 org field) ────────────────────────────
     geo = None
     if parsed.get("originating_ip"):
         geo = get_ip_geolocation(parsed["originating_ip"])
 
+    # ── Per-hop batch geolocation (Tier 2) ─────────────────────────────────
+    relay = parsed.get("relay_analysis", {})
+    hops = relay.get("hops", [])
+    hop_ips = [h.get("ip") for h in hops if h.get("ip")]
+    if hop_ips:
+        ip_geo_map = batch_geolocate_ips(hop_ips)
+        for hop in hops:
+            ip = hop.get("ip")
+            if ip and ip in ip_geo_map:
+                hop["country"] = ip_geo_map[ip].get("country")
+                hop["city"] = ip_geo_map[ip].get("city")
+            else:
+                hop.setdefault("country", None)
+                hop.setdefault("city", None)
+
+    # ── Domain Intelligence ────────────────────────────────────────────────
     domain_intel = None
     sender_domain = parsed.get("sender", {}).get("domain")
     if sender_domain:
         domain_intel = get_domain_intel(sender_domain)
 
+    # ── Safe Browsing ──────────────────────────────────────────────────────
     all_urls = []
     if sender_domain:
         all_urls.append(f"http://{sender_domain}")
     for link in parsed.get("links", []):
         if link.get("href"):
             all_urls.append(link["href"])
-
-    # Safe Browsing (needs API key — gracefully returns None if not set)
     safe_browsing = check_safe_browsing(all_urls)
+
+    # ── Government Domain Detection (Tier 2) ───────────────────────────────
+    sender_info = parsed.get("sender", {})
+    gov_result = check_gov_domain(
+        sender_info,
+        parsed.get("text_body", ""),
+        parsed.get("html_body", ""),
+    )
+    # Merge gov flags into sender
+    sender_with_gov = {**sender_info, **gov_result}
+
+    # ── Brand Verification (Tier 2) ────────────────────────────────────────
+    # Detect if there's a typosquat finding
+    is_typosquat = any(f.get("check") == "Lookalike domain" for f in findings)
+    brand_trust = verify_brand(
+        display_name=sender_info.get("display_name", ""),
+        sender_domain=sender_domain or "",
+        domain_intel=domain_intel,
+        header_analysis=parsed.get("header_analysis"),
+        safe_browsing_result=safe_browsing,
+        is_typosquat=is_typosquat,
+    )
 
     result = {
         "id": str(uuid.uuid4()),
         "created_at": datetime.datetime.utcnow().isoformat() + "Z",
-        "sender": parsed.get("sender"),
+        "sender": sender_with_gov,
         "subject": parsed.get("subject"),
-        "fraud_score": detection.get("fraud_score"),
-        "risk_level": detection.get("risk_level"),
-        "findings": detection.get("findings"),
+        "fraud_score": fraud_score,
+        "risk_level": risk_level,
+        "findings": findings,
         "header_analysis": parsed.get("header_analysis"),
         "relay_analysis": parsed.get("relay_analysis"),
         "geolocation": geo,
-        "domain_intel": domain_intel
+        "domain_intel": domain_intel,
+        "brand_trust": brand_trust,
     }
 
+    # ── Persist & Blockchain (Tier 2) ──────────────────────────────────────
     save_analysis(result)
+    blockchain_receipt = create_block(result)
+    result["blockchain_receipt"] = blockchain_receipt
+
+    # Update the stored JSON to include the blockchain receipt
+    # (re-save with receipt attached)
+    save_analysis_update(result)
+
     return result
+
+
+def save_analysis_update(analysis_dict):
+    """Update the stored result_json with blockchain receipt."""
+    import sqlite3, json
+    from database import DB_PATH
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE analyses SET result_json = ? WHERE id = ?",
+        (json.dumps(analysis_dict), analysis_dict["id"]),
+    )
+    conn.commit()
+    conn.close()
+
 
 @app.post("/analyze")
 async def analyze_email(
@@ -102,7 +204,40 @@ async def analyze_email(
 
     return _run_analysis(email_content)
 
-# Serve built frontend static files if available (single-service web deployment on Render / Railway)
+
+# ── Verify Blockchain Chain (Tier 2) ───────────────────────────────────────
+@app.get("/verify/{analysis_id}")
+def verify_analysis(analysis_id: str):
+    """Recompute the blockchain chain and verify integrity for a given analysis."""
+    analysis = get_analysis(analysis_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    return verify_chain(analysis_id)
+
+
+# ── PDF Forensic Report (Tier 2) ───────────────────────────────────────────
+@app.post("/report/{analysis_id}")
+def generate_report(analysis_id: str, mask_pii: bool = False):
+    """Generate and return a PDF forensic report."""
+    analysis = get_analysis(analysis_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+
+    try:
+        pdf_bytes = generate_pdf(analysis, mask_pii=mask_pii)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="forensic_report_{analysis_id[:8]}.pdf"'
+            },
+        )
+    except Exception as e:
+        logger.error("PDF generation failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+
+
+# ── Serve built frontend static files ──────────────────────────────────────
 FRONTEND_DIST = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
 if os.path.exists(FRONTEND_DIST):
     assets_dir = os.path.join(FRONTEND_DIST, "assets")
@@ -111,7 +246,7 @@ if os.path.exists(FRONTEND_DIST):
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
-        if full_path.startswith("api") or full_path in ["health", "analyze", "docs", "openapi.json", "redoc"]:
+        if full_path.startswith("api") or full_path in ["health", "analyze", "docs", "openapi.json", "redoc", "verify", "report"]:
             raise HTTPException(status_code=404, detail="Not Found")
         file_path = os.path.join(FRONTEND_DIST, full_path)
         if os.path.exists(file_path) and os.path.isfile(file_path):

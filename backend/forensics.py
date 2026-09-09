@@ -1,10 +1,13 @@
 import requests
 import whois
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_ip_geolocation(ip: str) -> dict | None:
     try:
-        resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,regionName,city,lat,lon,isp", timeout=5)
+        resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,regionName,city,lat,lon,isp,org", timeout=5)
         if resp.status_code == 200:
             data = resp.json()
             if data.get("status") == "success":
@@ -14,11 +17,54 @@ def get_ip_geolocation(ip: str) -> dict | None:
                     "city": data.get("city"),
                     "lat": data.get("lat"),
                     "lon": data.get("lon"),
-                    "isp": data.get("isp")
+                    "isp": data.get("isp"),
+                    "org": data.get("org")
                 }
     except Exception:
         pass
     return None
+
+
+def batch_geolocate_ips(ips: list[str]) -> dict:
+    """
+    Geolocate multiple IPs in one call using ip-api's batch endpoint.
+    Returns a dict mapping IP -> {"country": str, "city": str}.
+    Falls back to empty results on failure.
+    """
+    if not ips:
+        return {}
+    try:
+        # Deduplicate and filter out private/null IPs
+        import re
+        unique_ips = []
+        seen = set()
+        for ip in ips:
+            if ip and ip not in seen:
+                # Skip private IPs
+                if not re.match(r'^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.)', ip):
+                    unique_ips.append(ip)
+                    seen.add(ip)
+
+        if not unique_ips:
+            return {}
+
+        # ip-api batch endpoint (max 100 IPs per call)
+        batch_payload = [{"query": ip, "fields": "status,query,country,city"} for ip in unique_ips[:100]]
+        resp = requests.post("http://ip-api.com/batch", json=batch_payload, timeout=10)
+
+        if resp.status_code == 200:
+            results = resp.json()
+            ip_map = {}
+            for entry in results:
+                if entry.get("status") == "success":
+                    ip_map[entry["query"]] = {
+                        "country": entry.get("country"),
+                        "city": entry.get("city"),
+                    }
+            return ip_map
+    except Exception as e:
+        logger.warning("Batch IP geolocation failed: %s", e)
+    return {}
 
 def get_domain_intel(domain: str) -> dict | None:
     if not domain:

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, FileText } from 'lucide-react';
 import UploadZone from './components/UploadZone';
 import RiskBadge from './components/RiskBadge';
 import FindingsPanel from './components/FindingsPanel';
@@ -7,9 +7,14 @@ import HeaderAnalysis from './components/HeaderAnalysis';
 import GeoMap from './components/GeoMap';
 import DomainIntelCard from './components/DomainIntelCard';
 import RelayPathViz from './components/RelayPathViz';
+import GovDomainBanner from './components/GovDomainBanner';
+import BrandTrustPanel from './components/BrandTrustPanel';
+import BlockchainReceipt from './components/BlockchainReceipt';
+import ReportModal from './components/ReportModal';
 
 function App() {
   const [result, setResult] = useState(null);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const handleAnalyze = (data) => {
     setResult(data);
@@ -31,7 +36,21 @@ function App() {
 
         {result && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Government Domain Banner (top of dashboard) */}
+            <GovDomainBanner sender={result.sender} />
+
             <RiskBadge result={result} />
+
+            {/* Download Report Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 py-2.5 font-medium shadow-md transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                Download Forensic Report (PDF)
+              </button>
+            </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column */}
@@ -39,17 +58,30 @@ function App() {
                 <FindingsPanel findings={result.findings} />
                 <HeaderAnalysis headerAnalysis={result.header_analysis} />
                 <DomainIntelCard domainIntel={result.domain_intel} />
+                <BrandTrustPanel brandTrust={result.brand_trust} />
               </div>
               
               {/* Right Column */}
               <div className="space-y-6">
                 <GeoMap geolocation={result.geolocation} />
                 <RelayPathViz relayAnalysis={result.relay_analysis} />
+                <BlockchainReceipt 
+                  blockchainReceipt={result.blockchain_receipt} 
+                  analysisId={result.id} 
+                />
               </div>
             </div>
           </div>
         )}
       </main>
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        analysisId={result?.id}
+        blockchainReceipt={result?.blockchain_receipt}
+      />
     </div>
   );
 }

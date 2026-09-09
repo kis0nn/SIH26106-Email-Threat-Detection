@@ -24,7 +24,7 @@ const GeoMap = ({ geolocation }) => {
     );
   }
 
-  const { lat, lon, city, country, isp, ip } = geolocation;
+  const { lat, lon, city, country, isp, org, ip } = geolocation;
   const position = [lat, lon];
 
   return (
@@ -46,6 +46,7 @@ const GeoMap = ({ geolocation }) => {
                 <div className="font-bold border-b pb-1 mb-1">{ip}</div>
                 <div>{city ? `${city}, ` : ''}{country || 'Unknown Location'}</div>
                 {isp && <div className="text-gray-600 mt-1">ISP: {isp}</div>}
+                {org && <div className="text-gray-600">Org: {org}</div>}
               </div>
             </Popup>
           </Marker>
@@ -63,9 +64,13 @@ const GeoMap = ({ geolocation }) => {
             {city ? `${city}, ` : ''}{country || 'N/A'}
           </span>
         </div>
-        <div className="col-span-2">
-          <span className="text-gray-500 block">ISP / Organization</span>
+        <div>
+          <span className="text-gray-500 block">ISP</span>
           <span className="font-medium text-gray-800">{isp || 'N/A'}</span>
+        </div>
+        <div>
+          <span className="text-gray-500 block">Organization</span>
+          <span className="font-medium text-gray-800">{org || 'N/A'}</span>
         </div>
       </div>
     </div>
