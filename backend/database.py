@@ -30,6 +30,15 @@ def init_db():
             FOREIGN KEY (analysis_id) REFERENCES analyses(id)
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            event_type TEXT NOT NULL,
+            analysis_id TEXT,
+            details TEXT
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -133,3 +142,59 @@ def get_all_blocks() -> list[dict]:
         }
         for r in rows
     ]
+# ── History Queries (Tier 3) ────────────────────────────────────────────────
+
+def query_history(limit: int = 20, offset: int = 0, risk_filter: str = None, search: str = None):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    query = "SELECT id, created_at, sender_email, subject, fraud_score, risk_level FROM analyses WHERE 1=1"
+    params = []
+    
+    if risk_filter and risk_filter.lower() != 'all':
+        query += " AND risk_level = ?"
+        params.append(risk_filter.lower())
+        
+    if search:
+        search_term = f"%{search}%"
+        query += " AND (sender_email LIKE ? OR sender_domain LIKE ? OR subject LIKE ?)"
+        params.extend([search_term, search_term, search_term])
+        
+    # Get total count before pagination
+    cursor.execute(f"SELECT COUNT(*) FROM ({query})", params)
+    total = cursor.fetchone()[0]
+    
+    # Add pagination
+    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
+    
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    items = []
+    for r in rows:
+        items.append({
+            "id": r[0],
+            "created_at": r[1],
+            "sender_email": r[2],
+            "subject": r[3],
+            "fraud_score": r[4],
+            "risk_level": r[5]
+        })
+        
+    return {"total": total, "items": items}
+
+# ── Audit Log CRUD (Tier 3) ────────────────────────────────────────────────
+
+import datetime
+
+def save_audit_log(event_type: str, analysis_id: str = None, details: str = ""):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO audit_log (timestamp, event_type, analysis_id, details)
+        VALUES (?, ?, ?, ?)
+    ''', (datetime.datetime.utcnow().isoformat() + "Z", event_type, analysis_id, details))
+    conn.commit()
+    conn.close()

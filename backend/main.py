@@ -18,6 +18,9 @@ from brand_verification import verify_brand
 from blockchain import create_block, verify_chain
 from gov_detection import check_gov_domain
 from report_generator import generate_pdf
+from database import query_history
+from relay_anomaly import detect_relay_anomalies
+from audit_logger import log_event
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -53,6 +56,7 @@ class RawEmailRequest(BaseModel):
 
 def _run_analysis(email_content: str) -> dict:
     """Core analysis pipeline — shared by both input methods."""
+    log_event("analysis_started", None, "Started analysis of new email")
     parsed = parse_email(email_content)
     detection = run_detection(parsed)
 
@@ -125,6 +129,50 @@ def _run_analysis(email_content: str) -> dict:
     # Merge gov flags into sender
     sender_with_gov = {**sender_info, **gov_result}
 
+    # ── Relay-Hop Anomaly Detection (Tier 3) ───────────────────────────────
+    relay_anomalies = detect_relay_anomalies(
+        hops=hops,
+        sender_domain=sender_domain,
+        return_path=parsed.get("header_analysis", {}).get("return_path"),
+        from_email=sender_info.get("email")
+    )
+    parsed["relay_analysis"]["anomalies"] = relay_anomalies
+    
+    if relay_anomalies:
+        fraud_score += 15
+        findings.append({
+            "check": "Relay anomalies",
+            "severity": "high",
+            "score_contribution": 15,
+            "detail": "Detected suspicious relay routing (e.g. forged timestamps, bouncing, or geographic impossibility).",
+        })
+
+    # ── Attachment Danger Analysis (Tier 3) ────────────────────────────────
+    attachments = parsed.get("attachments", [])
+    has_dangerous_attachment = False
+    for att in attachments:
+        if att.get("risk") == "dangerous":
+            has_dangerous_attachment = True
+            break
+            
+    if has_dangerous_attachment:
+        fraud_score += 40
+        findings.append({
+            "check": "Dangerous attachments",
+            "severity": "critical",
+            "score_contribution": 40,
+            "detail": "Detected high-risk attachments (executables, double extensions, or macro-enabled documents).",
+        })
+
+    # Cap score at 100 and recompute risk level
+    fraud_score = min(100, fraud_score)
+    if fraud_score < 30:
+        risk_level = "low"
+    elif fraud_score < 60:
+        risk_level = "medium"
+    else:
+        risk_level = "high"
+
     # ── Brand Verification (Tier 2) ────────────────────────────────────────
     # Detect if there's a typosquat finding
     is_typosquat = any(f.get("check") == "Lookalike domain" for f in findings)
@@ -150,6 +198,7 @@ def _run_analysis(email_content: str) -> dict:
         "geolocation": geo,
         "domain_intel": domain_intel,
         "brand_trust": brand_trust,
+        "attachments": attachments,
     }
 
     # ── Persist & Blockchain (Tier 2) ──────────────────────────────────────
@@ -158,8 +207,10 @@ def _run_analysis(email_content: str) -> dict:
     result["blockchain_receipt"] = blockchain_receipt
 
     # Update the stored JSON to include the blockchain receipt
-    # (re-save with receipt attached)
     save_analysis_update(result)
+
+    # ── Audit Logging (Tier 3) ─────────────────────────────────────────────
+    log_event("analysis_completed", result["id"], f"Score: {fraud_score}, Risk: {risk_level}")
 
     return result
 
@@ -209,6 +260,7 @@ async def analyze_email(
 @app.get("/verify/{analysis_id}")
 def verify_analysis(analysis_id: str):
     """Recompute the blockchain chain and verify integrity for a given analysis."""
+    log_event("verification_requested", analysis_id, "User requested blockchain integrity verification")
     analysis = get_analysis(analysis_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -219,6 +271,7 @@ def verify_analysis(analysis_id: str):
 @app.post("/report/{analysis_id}")
 def generate_report(analysis_id: str, mask_pii: bool = False):
     """Generate and return a PDF forensic report."""
+    log_event("report_generated", analysis_id, f"User generated PDF report (PII masked: {mask_pii})")
     analysis = get_analysis(analysis_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -237,6 +290,21 @@ def generate_report(analysis_id: str, mask_pii: bool = False):
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
 
 
+# ── History & Case View (Tier 3) ───────────────────────────────────────────
+@app.get("/history")
+def get_history(limit: int = 20, offset: int = 0, risk_level: str = "All", search: str = ""):
+    """Retrieve paginated history of analyses."""
+    return query_history(limit=limit, offset=offset, risk_filter=risk_level, search=search)
+
+@app.get("/analysis/{analysis_id}")
+def get_analysis_by_id(analysis_id: str):
+    """Retrieve full analysis JSON by ID."""
+    analysis = get_analysis(analysis_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    return analysis
+
+
 # ── Serve built frontend static files ──────────────────────────────────────
 FRONTEND_DIST = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
 if os.path.exists(FRONTEND_DIST):
@@ -246,7 +314,7 @@ if os.path.exists(FRONTEND_DIST):
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
-        if full_path.startswith("api") or full_path in ["health", "analyze", "docs", "openapi.json", "redoc", "verify", "report"]:
+        if full_path.startswith("api") or full_path in ["health", "analyze", "history", "docs", "openapi.json", "redoc", "verify", "report"] or full_path.startswith("analysis/"):
             raise HTTPException(status_code=404, detail="Not Found")
         file_path = os.path.join(FRONTEND_DIST, full_path)
         if os.path.exists(file_path) and os.path.isfile(file_path):

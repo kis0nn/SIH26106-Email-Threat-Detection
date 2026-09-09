@@ -92,6 +92,10 @@ def parse_email(raw_email_string) -> dict:
         
     links = extract_urls_from_html(html_body)
     
+    # ── Tier 3: Attachments ──────────────────────────────────────────────────
+    from attachment_analysis import analyze_attachments
+    attachments = analyze_attachments(msg)
+    
     return {
         "sender": {
             "display_name": display_name,
@@ -109,5 +113,6 @@ def parse_email(raw_email_string) -> dict:
         "originating_ip": originating_ip,
         "text_body": text_body,
         "html_body": html_body,
-        "links": links
+        "links": links,
+        "attachments": attachments
     }

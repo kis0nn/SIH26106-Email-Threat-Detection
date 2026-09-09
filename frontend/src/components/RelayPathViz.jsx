@@ -1,5 +1,5 @@
 import React from 'react';
-import { Server, Share2, MapPin } from 'lucide-react';
+import { Server, Share2, MapPin, AlertTriangle } from 'lucide-react';
 
 const RelayPathViz = ({ relayAnalysis }) => {
   if (!relayAnalysis || !relayAnalysis.hops || relayAnalysis.hops.length === 0) {
@@ -11,11 +11,11 @@ const RelayPathViz = ({ relayAnalysis }) => {
     );
   }
 
-  const { total_hops, hops } = relayAnalysis;
+  const { total_hops, hops, anomalies } = relayAnalysis;
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-100">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
         <div className="flex items-center gap-2">
           <Share2 className="w-6 h-6 text-gray-700" />
           <h3 className="text-lg font-semibold text-gray-800">Relay Path</h3>
@@ -25,16 +25,42 @@ const RelayPathViz = ({ relayAnalysis }) => {
         </span>
       </div>
 
+      {anomalies && anomalies.length > 0 && (
+        <div className="mb-6 bg-rose-50 border border-rose-200 rounded-lg p-3">
+          <h4 className="text-sm font-bold text-rose-800 mb-2 flex items-center gap-1">
+            <AlertTriangle className="w-4 h-4" />
+            Relay Anomalies Detected:
+          </h4>
+          <ul className="list-disc pl-5 text-xs text-rose-700 space-y-1">
+            {anomalies.map((anomaly, idx) => (
+              <li key={idx}>{anomaly}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="relative pl-6 space-y-8 before:absolute before:inset-0 before:ml-[1.4rem] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-blue-200 before:to-blue-200">
-        {hops.map((hopData, idx) => (
+        {hops.map((hopData, idx) => {
+          // Check if this hop is mentioned in any anomaly
+          const isAnomalous = anomalies?.some(a => a.includes(`Hop ${hopData.hop}:`));
+          
+          return (
           <div key={idx} className="relative flex items-start">
-            <div className="absolute left-[-2rem] flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 border-4 border-white text-white font-bold text-xs shadow-sm z-10">
+            <div className={`absolute left-[-2rem] flex items-center justify-center w-8 h-8 rounded-full border-4 border-white text-white font-bold text-xs shadow-sm z-10 ${isAnomalous ? 'bg-rose-500' : 'bg-blue-500'}`}>
               {hopData.hop}
             </div>
-            <div className="bg-gray-50 border border-gray-100 p-4 rounded-lg flex-1 shadow-sm ml-2">
-              <div className="flex items-center gap-2 mb-2 text-sm">
-                <Server className="w-4 h-4 text-blue-600" />
-                <span className="font-semibold text-gray-800 break-all">{hopData.server || 'Unknown Server'}</span>
+            <div className={`bg-gray-50 border p-4 rounded-lg flex-1 shadow-sm ml-2 ${isAnomalous ? 'border-rose-300' : 'border-gray-100'}`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <Server className={`w-4 h-4 ${isAnomalous ? 'text-rose-600' : 'text-blue-600'}`} />
+                  <span className="font-semibold text-gray-800 break-all">{hopData.server || 'Unknown Server'}</span>
+                </div>
+                {isAnomalous && (
+                  <span className="bg-rose-100 text-rose-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Anomaly
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 <div>
@@ -57,7 +83,8 @@ const RelayPathViz = ({ relayAnalysis }) => {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
