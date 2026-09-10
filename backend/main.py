@@ -84,22 +84,37 @@ def _run_analysis(email_content: str) -> dict:
     else:
         risk_level = "high"
 
-    # ── Geolocation (Tier 1 + Tier 2 org field) ────────────────────────────
+    # ── Geolocation ─────────────────────────────────────────────────────────
+    # Try the originating_ip first. If it's a bogon/provider IP (or None),
+    # scan relay hops oldest-to-newest for the first real geolocatable IP.
     geo = None
-    if parsed.get("originating_ip"):
-        geo = get_ip_geolocation(parsed["originating_ip"])
+    from forensics import is_bogon_ip
+    originating_ip = parsed.get("originating_ip")
+
+    # Attempt 1: use the parsed originating IP
+    if originating_ip and not is_bogon_ip(originating_ip):
+        geo = get_ip_geolocation(originating_ip)
+
+    # Attempt 2: walk relay hops looking for the first non-bogon IP
+    relay = parsed.get("relay_analysis", {})
+    hops  = relay.get("hops", [])
+    if not geo:
+        for hop in hops:
+            ip = hop.get("ip")
+            if ip and not is_bogon_ip(ip):
+                geo = get_ip_geolocation(ip)
+                if geo:
+                    break   # found a real location — stop searching
 
     # ── Per-hop batch geolocation (Tier 2) ─────────────────────────────────
-    relay = parsed.get("relay_analysis", {})
-    hops = relay.get("hops", [])
     hop_ips = [h.get("ip") for h in hops if h.get("ip")]
     if hop_ips:
-        ip_geo_map = batch_geolocate_ips(hop_ips)
+        ip_geo_map = batch_geolocate_ips(hop_ips)  # bogon IPs skipped inside
         for hop in hops:
             ip = hop.get("ip")
             if ip and ip in ip_geo_map:
                 hop["country"] = ip_geo_map[ip].get("country")
-                hop["city"] = ip_geo_map[ip].get("city")
+                hop["city"]    = ip_geo_map[ip].get("city")
             else:
                 hop.setdefault("country", None)
                 hop.setdefault("city", None)
