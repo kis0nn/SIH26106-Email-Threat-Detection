@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SIH26106 Technical Dossier & Judges Guide</title>
+  <style>
+    @media print {
+      @page {
+        margin: 15mm 12mm;
+        size: A4;
+      }
+      body {
+        font-size: 10pt;
+      }
+      .no-print {
+        display: none !important;
+      }
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+      table, pre, blockquote {
+        page-break-inside: avoid;
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a202c;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      background-color: #ffffff;
+    }
+    .print-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transition: background 0.2s;
+    }
+    .print-btn:hover {
+      background: #1d4ed8;
+    }
+    h1 {
+      color: #1e3a8a;
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 8px;
+      margin-top: 0;
+      font-size: 24pt;
+    }
+    h2 {
+      color: #1e40af;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-top: 36px;
+      font-size: 16pt;
+    }
+    h3 {
+      color: #1e293b;
+      margin-top: 24px;
+      font-size: 13pt;
+    }
+    h4 {
+      color: #334155;
+      margin-top: 18px;
+      font-size: 11pt;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 9.5pt;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    code {
+      background-color: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+      font-size: 0.9em;
+      color: #0f172a;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 8.5pt;
+      line-height: 1.45;
+    }
+    pre code {
+      background-color: transparent;
+      color: #f8fafc;
+      padding: 0;
+    }
+    blockquote {
+      border-left: 4px solid #2563eb;
+      margin: 16px 0;
+      padding: 8px 16px;
+      background-color: #eff6ff;
+      color: #1e3a8a;
+      border-radius: 0 8px 8px 0;
+    }
+    hr {
+      border: 0;
+      height: 1px;
+      background: #e2e8f0;
+      margin: 32px 0;
+    }
+  </style>
+</head>
+<body>
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Save as PDF / Print</button>
+  <h1 id="sih26106-ai-powered-email-threat-detection-geolocation-forensic-intelligence-platform">SIH26106: AI-Powered Email Threat Detection, Geolocation &amp; Forensic Intelligence Platform</h1>
+<h2 id="complete-technical-dossier-architectural-blueprint-judge-qa-guide">Complete Technical Dossier, Architectural Blueprint &amp; Judge Q&amp;A Guide</h2>
+<p><strong>Smart India Hackathon (SIH 2026)</strong> | <strong>Problem ID:</strong> SIH26106 | <strong>Category:</strong> Cyber Security / AI<br />
+<strong>Target Organization:</strong> AICTE Cyber Security Cell<br />
+<strong>Team Repository:</strong> <code>https://github.com/kis0nn/SIH26106-Email-Threat-Detection</code><br />
+<strong>Live Web Deployment:</strong> <code>https://kis0nn.github.io/SIH26106-Email-Threat-Detection/</code>  </p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>Email remains the #1 initial infection vector for cyberattacks worldwide, responsible for over 90% of data breaches, Business Email Compromise (BEC) fraud, and advanced persistent threat (APT) spear-phishing. Traditional email security gateways rely on static signature matching, outdated blacklists, and simplistic spam heuristics that are trivially bypassed by domain spoofing, display-name deception, lookalike domains (typosquatting), and compromised relay servers. Furthermore, existing security tools act as proprietary "black boxes"—they block or quarantine an email without providing actionable, tamper-evident forensic intelligence that incident responders, law enforcement, or cyber defense cells require.</p>
+<p><strong>SIH26106</strong> addresses this critical gap by delivering an end-to-end, enterprise-grade <strong>Forensic Intelligence Platform &amp; Convenience Input Layer</strong>. It combines multi-layer deterministic header forensics, fine-tuned transformer NLP AI, automated brand identity verification, geographic network hop tracing, attachment danger analysis, and a <strong>cryptographic blockchain-inspired tamper-evident audit chain</strong>. The result is a dual-interface ecosystem: a 1-click <strong>Chrome Extension (Manifest V3)</strong> for everyday users inside webmail, and a comprehensive <strong>Web Forensic Investigation Dashboard</strong> for SOC analysts and law enforcement investigators.</p>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-problem-definition--industry-context">Problem Definition &amp; Industry Context</a></li>
+<li><a href="#2-dual-layer-product-architecture">Dual-Layer Product Architecture</a></li>
+<li><a href="#3-complete-technology-stack--design-rationale">Complete Technology Stack &amp; Design Rationale</a></li>
+<li>3.1 Frontend Stack (UI/UX)</li>
+<li>3.2 Backend Stack (Core Engine)</li>
+<li>3.3 Artificial Intelligence &amp; NLP Engine</li>
+<li>3.4 Forensic Services &amp; OSINT APIs</li>
+<li>3.5 Cryptography &amp; Storage Engine</li>
+<li><a href="#4-deep-dive-core-technical-modules--algorithms">Deep Dive: Core Technical Modules &amp; Algorithms</a></li>
+<li>4.1 RFC 822 / 5322 Parsing Engine</li>
+<li>4.2 Multi-Layered Threat Scoring Pipeline</li>
+<li>4.3 Transformer NLP Phishing Classification</li>
+<li>4.4 Indian Government Domain Impersonation Engine</li>
+<li>4.5 Wikipedia REST API Dynamic Brand Trust Engine</li>
+<li>4.6 Per-Hop Network Relay Anomaly Detection</li>
+<li>4.7 Attachment Danger Analysis</li>
+<li>4.8 The Blockchain-Inspired Audit Chain (Deep Dive)</li>
+<li>4.9 Court-Ready PDF Forensic Report Generator with PII Masking</li>
+<li>4.10 Searchable Investigation History &amp; Case Management</li>
+<li>4.11 Chrome Extension (Manifest V3)</li>
+<li><a href="#5-system-workflow--data-flow-diagrams">System Workflow &amp; Data Flow Diagrams</a></li>
+<li><a href="#6-judges-qa-preparation-25-hard-technical--conceptual-questions">Judges Q&amp;A Preparation: 25+ Hard Technical &amp; Conceptual Questions</a></li>
+<li>Category A: Architecture, Stack &amp; Design Decisions</li>
+<li>Category B: AI, Machine Learning &amp; Detection Edge Cases</li>
+<li>Category C: Blockchain, Cryptography &amp; Chain of Custody</li>
+<li>Category D: Network Forensics, Spoofing &amp; Geolocation</li>
+<li>Category E: Privacy, Compliance &amp; Real-World Feasibility</li>
+<li>Category F: Live Demonstration &amp; Code Walkthrough Traps</li>
+</ol>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="1-problem-definition-industry-context">1. Problem Definition &amp; Industry Context</h2>
+<h3 id="11-the-threat-landscape">1.1 The Threat Landscape</h3>
+<p>Modern email attacks no longer consist of clumsy "Nigerian Prince" scams with obvious spelling errors. Modern cyber adversaries utilize:
+1. <strong>Business Email Compromise (BEC) &amp; CEO Fraud:</strong> Impersonating executives or vendors using visually indistinguishable lookalike domains (e.g., <code>micros0ft.com</code>, <code>sbi-kyc-update.tk</code>).
+2. <strong>Indian Government Identity Spoofing:</strong> Pretending to be income tax authorities, police cyber cells, or public sector banks (SBI, PNB) without possessing official <code>.gov.in</code> or <code>.nic.in</code> credentials.
+3. <strong>Forged Header Routing &amp; Relay Bouncing:</strong> Manipulating RFC 822 <code>Received:</code> headers and routing messages through compromised intermediaries or bulletproof VPS hosts across multiple jurisdictions to hinder attribution.
+4. <strong>Dangerous Attachment Cloaking:</strong> Utilizing double extensions (e.g., <code>invoice_march2026.pdf.exe</code>) or macro-enabled documents (<code>.docm</code>, <code>.xlsm</code>) to deliver initial-access payloads.</p>
+<h3 id="12-who-are-the-stakeholders">1.2 Who Are the Stakeholders?</h3>
+<ul>
+<li><strong>SOC (Security Operations Center) Analysts:</strong> Need instant, deep header decoding, authentication verification (SPF, DKIM, DMARC), geographic visualization, and relay latency profiling.</li>
+<li><strong>Law Enforcement &amp; Cyber Crime Cells:</strong> Need court-ready chain of custody, tamper-evident cryptographic hashes, and exportable forensic dossiers with privacy-compliant PII masking.</li>
+<li><strong>Enterprise Employees &amp; Everyday Webmail Users:</strong> Need zero-friction, 1-click scanning directly in Google Chrome / Gmail without copying/pasting sensitive messages into third-party websites.</li>
+</ul>
+<h3 id="13-why-existing-solutions-fall-short">1.3 Why Existing Solutions Fall Short</h3>
+<ul>
+<li><strong>Black-Box Architecture:</strong> Commercial filters (e.g., Proofpoint, Mimecast) classify emails as binary "Spam / Not Spam" without transparently explaining <em>why</em> to analysts.</li>
+<li><strong>Lack of Tamper Evident Integrity:</strong> Standard database logs can be edited or deleted by rogue system administrators or internal adversaries. There is no proof that evidence wasn't modified after extraction.</li>
+<li><strong>Static, Fragile Brand Rules:</strong> Most systems rely on static hardcoded lists of brand names that quickly become outdated.</li>
+<li><strong>No Specialized Indian Gov Identity Engine:</strong> Global security vendors lack specialized context for Indian national cyber infrastructure (e.g., strict verification against <code>.gov.in</code> and <code>nic.in</code>).</li>
+</ul>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="2-dual-layer-product-architecture">2. Dual-Layer Product Architecture</h2>
+<p>The platform is designed with a high-cohesion, decoupled two-tier architecture:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────┐
+│                        USER &amp; ANALYST TOUCHPOINTS                        │
+├──────────────────────────────────────┬───────────────────────────────────┤
+│    Convenience Input Layer           │     Forensic Intelligence Hub     │
+│    (Chrome Extension - MV3)          │     (React + Vite Web App)        │
+│    • Injects into Gmail DOM          │     • Geolocation Map (Leaflet)   │
+│    • 1-Click &quot;Scan Email&quot;            │     • Visual Relay Timeline       │
+│    • Instant Risk &amp; Gov Spoof Badge  │     • Brand Trust Panel           │
+│    • &quot;Open Full Report&quot; Button       │     • Blockchain Audit Verifier   │
+│                                      │     • PII-Masked PDF Downloader   │
+│                                      │     • Historical Case Search      │
+└──────────────────┬───────────────────┴─────────────────┬─────────────────┘
+                   │                                     │
+                   │ HTTP POST (Multipart / JSON)        │ HTTP GET/POST
+                   ▼                                     ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                      FASTAPI HIGH-PERFORMANCE BACKEND                    │
+├──────────────────────────────────────────────────────────────────────────┤
+│  [1] Parser Engine (RFC 822 / 5322 MIME &amp; Received unwinding)            │
+│  [2] Rule-Based Detection Engine (SPF/DKIM, Typosquatting, Urgent Flags) │
+│  [3] DistilBERT NLP Phishing Classifier (Transformer AI Logits)         │
+│  [4] Indian Government Verification Engine (.gov.in / nic.in)            │
+│  [5] OSINT Brand Trust Engine (Wikipedia REST API &amp; Edit Distance)       │
+│  [6] Batch IP Geolocation (IP-API) &amp; Relay Hop Anomaly Detector          │
+│  [7] Attachment Danger Inspector (Double Ext / Macro Analysis)           │
+│  [8] Blockchain Cryptographic Engine (SHA-256 Tamper-Evident Chain)     │
+│  [9] ReportLab PDF Engine (PII Masking &amp; Law Enforcement Dossier)       │
+│ [10] SQLite Persistent Store &amp; Searchable Case History Repository        │
+└──────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="3-complete-technology-stack-design-rationale">3. Complete Technology Stack &amp; Design Rationale</h2>
+<p>Here is every tool, library, and framework used in the project, including their full names, purposes, and explicit comparisons with alternatives.</p>
+<h3 id="31-frontend-stack-user-interface">3.1 Frontend Stack (User Interface)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">Full Name</th>
+<th style="text-align: left;">Purpose in Project</th>
+<th style="text-align: left;">Why Chosen Over Alternatives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>React.js</strong></td>
+<td style="text-align: left;">React JavaScript Library</td>
+<td style="text-align: left;">Powers the reactive Single-Page Application (SPA) dashboard, managing complex state across 10+ forensic widgets.</td>
+<td style="text-align: left;"><strong>vs Vanilla JS:</strong> Vanilla JS creates spaghetti DOM code when handling dynamic maps, modals, and filters. <br><strong>vs Angular:</strong> Angular has excessive enterprise boilerplate. React is modular, component-based, and renders faster via Virtual DOM.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Vite</strong></td>
+<td style="text-align: left;">French word for "Fast" (Build Tool &amp; Bundler)</td>
+<td style="text-align: left;">Provides instantaneous Hot Module Replacement (HMR) and bundles production code via Rolldown.</td>
+<td style="text-align: left;"><strong>vs Create React App (Webpack):</strong> CRA/Webpack is deprecated and slow (bundles entire app before serving). Vite uses native browser ES Modules, compiling in milliseconds.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tailwind CSS</strong></td>
+<td style="text-align: left;">Tailwind Cascading Style Sheets</td>
+<td style="text-align: left;">Utility-first styling framework used for responsive layout, dark/light risk color badges (rose, amber, emerald).</td>
+<td style="text-align: left;"><strong>vs Bootstrap:</strong> Bootstrap enforces generic component themes and has heavy stylesheet overhead. Tailwind purges unused CSS at build time, resulting in a tiny ~49 KB CSS bundle. <br><strong>vs Custom CSS:</strong> Custom CSS causes naming collisions and bloated files.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lucide React</strong></td>
+<td style="text-align: left;">Lucide Icon Collection</td>
+<td style="text-align: left;">Provides lightweight, accessible SVG cybersecurity icons (<code>Shield</code>, <code>AlertTriangle</code>, <code>Server</code>, <code>Paperclip</code>, <code>Link</code>).</td>
+<td style="text-align: left;"><strong>vs FontAwesome:</strong> FontAwesome requires heavy font asset downloads. Lucide compiles purely as tree-shakable SVG JSX components.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Leaflet.js</strong></td>
+<td style="text-align: left;">Leaflet Open-Source Mapping Library</td>
+<td style="text-align: left;">Renders the interactive map showing the originating IP address coordinates, country, and ISP.</td>
+<td style="text-align: left;"><strong>vs Google Maps API:</strong> Google Maps requires paid API keys, credit card registration, and leaks user queries. Leaflet is open-source, free, and uses privacy-preserving OpenStreetMap tiles.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-backend-stack-core-engine">3.2 Backend Stack (Core Engine)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">Full Name</th>
+<th style="text-align: left;">Purpose in Project</th>
+<th style="text-align: left;">Why Chosen Over Alternatives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Python 3.14</strong></td>
+<td style="text-align: left;">Python Programming Language</td>
+<td style="text-align: left;">Serves as the primary language for email parsing, forensic networking, machine learning inference, and database access.</td>
+<td style="text-align: left;"><strong>vs Node.js:</strong> Python is the undisputed industry standard for cybersecurity, digital forensics, and AI/NLP libraries (<code>transformers</code>, <code>torch</code>, <code>email</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FastAPI</strong></td>
+<td style="text-align: left;">Fast Application Programming Interface</td>
+<td style="text-align: left;">High-performance asynchronous REST API framework handling <code>/analyze</code>, <code>/verify</code>, <code>/report</code>, and <code>/history</code>.</td>
+<td style="text-align: left;"><strong>vs Flask:</strong> Flask is synchronous (blocking), lacks built-in data validation, and handles high concurrency poorly. <br><strong>vs Django:</strong> Django is an over-engineered monolithic framework with unnecessary ORM overhead. FastAPI is native ASGI (asynchronous), 300% faster, and generates interactive Swagger docs (<code>/docs</code>) automatically.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Pydantic</strong></td>
+<td style="text-align: left;">Pydantic Data Validation Library</td>
+<td style="text-align: left;">Enforces strict type checking and JSON schema serialization for all request/response models.</td>
+<td style="text-align: left;"><strong>vs Manual Dict Checks:</strong> Prevents runtime TypeError exceptions and validates API inputs before execution.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Uvicorn</strong></td>
+<td style="text-align: left;">ASGI Web Server (Lightning-fast ASGI server)</td>
+<td style="text-align: left;">Runs the asynchronous FastAPI application using <code>uvloop</code>.</td>
+<td style="text-align: left;"><strong>vs Gunicorn / WSGI:</strong> WSGI cannot run asynchronous Python (<code>async/await</code>). Uvicorn is built on <code>uvloop</code> (written in C) and matches Node/Go concurrency benchmarks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>SQLite3</strong></td>
+<td style="text-align: left;">Structured Query Language Lite</td>
+<td style="text-align: left;">Self-contained, zero-configuration relational database storing analyses, blockchain receipts, and audit logs.</td>
+<td style="text-align: left;"><strong>vs PostgreSQL / MySQL:</strong> For a standalone security appliance or rapid-deployment triage station, requiring a dedicated DB server creates deployment friction. SQLite stores everything in a single portable file (<code>email_threat.db</code>), requires zero maintenance, and handles thousands of reads/writes effortlessly.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-artificial-intelligence-nlp-engine">3.3 Artificial Intelligence &amp; NLP Engine</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">Full Name</th>
+<th style="text-align: left;">Purpose in Project</th>
+<th style="text-align: left;">Why Chosen Over Alternatives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>DistilBERT</strong></td>
+<td style="text-align: left;">Distilled Bidirectional Encoder Representations from Transformers</td>
+<td style="text-align: left;">Fine-tuned transformer model (<code>cybersectony/phishing-email-detection-distilbert_v2.4.1</code>) that computes the contextual semantic phishing probability of subject and body text.</td>
+<td style="text-align: left;"><strong>vs OpenAI / Claude API (Cloud LLMs):</strong> Sending proprietary, confidential corporate or government emails to third-party US cloud APIs violates GDPR, the Indian DPDP Act 2023, and corporate confidentiality. DistilBERT runs <strong>100% on-premise/locally</strong> with zero API costs. <br><strong>vs Standard BERT:</strong> Standard BERT is twice as large and slow. DistilBERT retains <strong>97% of BERT's linguistic capability</strong> while being <strong>40% smaller and 60% faster</strong>. <br><strong>vs Naive Bayes / TF-IDF:</strong> Bag-of-words models ignore context (e.g., negations or semantic subtlety). Transformers understand full sentence syntax.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Hugging Face Transformers</strong></td>
+<td style="text-align: left;">Hugging Face Model Library</td>
+<td style="text-align: left;">Provides the model loading, tokenizer (<code>AutoTokenizer</code>), and pipeline execution framework for DistilBERT.</td>
+<td style="text-align: left;"><strong>vs Writing PyTorch from scratch:</strong> Provides standardized tokenization, attention masks, and optimized inference routines.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Graceful AI Fallback</strong></td>
+<td style="text-align: left;">Software Architecture Pattern</td>
+<td style="text-align: left;">Code design pattern in <code>nlp_scoring.py</code> that catches missing dependencies/hardware and smoothly defaults to rule-based detection without crashing.</td>
+<td style="text-align: left;"><strong>vs Crashing the server:</strong> Guarantees <strong>100% service availability</strong> even in resource-constrained environments (e.g., lightweight cloud instances or offline deployments).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-forensic-services-osint-apis">3.4 Forensic Services &amp; OSINT APIs</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">Full Name</th>
+<th style="text-align: left;">Purpose in Project</th>
+<th style="text-align: left;">Why Chosen Over Alternatives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>IP-API</strong></td>
+<td style="text-align: left;">IP Geolocation Application Programming Interface</td>
+<td style="text-align: left;">Resolves IPv4 addresses into latitude, longitude, country, city, ISP, and Autonomous System Organization (AS-Org).</td>
+<td style="text-align: left;"><strong>vs MaxMind GeoIP:</strong> MaxMind requires local database downloads, licensing, and updates. IP-API provides a high-speed <code>/batch</code> endpoint that can resolve up to 15 relay IPs in a single HTTP POST request, preventing rate-limiting.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Wikipedia REST API</strong></td>
+<td style="text-align: left;">Wikimedia REST API</td>
+<td style="text-align: left;">Dynamically queries Wikipedia search and page summary endpoints to verify whether a claimed brand is an authentic entity and discovers their official domain.</td>
+<td style="text-align: left;"><strong>vs Hardcoded Brand Lists:</strong> Static lists become obsolete immediately when new brands emerge. Wikipedia represents a continuously updated global knowledge graph.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Python <code>email</code> + <code>policy.default</code></strong></td>
+<td style="text-align: left;">Standard Library RFC 822 / 5322 MIME Parser</td>
+<td style="text-align: left;">Decodes raw email headers, multi-part MIME boundaries, character encodings, and attachment metadata.</td>
+<td style="text-align: left;"><strong>vs Regex-only parsing:</strong> Email RFC standards are notoriously complex (folded headers, quoted strings, base64/quoted-printable payloads). Regex alone fails on edge cases; Python's official policy parser conforms strictly to IETF standards.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RapidFuzz</strong></td>
+<td style="text-align: left;">Rapid Fuzzy String Matching Library</td>
+<td style="text-align: left;">Calculates Levenshtein edit distance and partial token ratios to catch lookalike typosquatting domains (e.g., <code>paypa1.com</code> vs <code>paypal.com</code>).</td>
+<td style="text-align: left;"><strong>vs FuzzyWuzzy:</strong> RapidFuzz is written in C++ with SIMD acceleration, making it over 10x faster than pure-Python fuzzy matching tools.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>BeautifulSoup4</strong></td>
+<td style="text-align: left;">Beautiful Soup HTML Parser</td>
+<td style="text-align: left;">Strips HTML formatting, extracts anchor tags (<code>&lt;a href&gt;</code>), and discovers hidden or mismatched link destinations.</td>
+<td style="text-align: left;"><strong>vs Regex URL Extraction:</strong> Attackers use obfuscated HTML attributes, HTML entities, and nested tags. BeautifulSoup accurately traverses the DOM tree.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35-cryptography-storage-engine">3.5 Cryptography &amp; Storage Engine</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">Full Name</th>
+<th style="text-align: left;">Purpose in Project</th>
+<th style="text-align: left;">Why Chosen Over Alternatives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>SHA-256 (via <code>hashlib</code>)</strong></td>
+<td style="text-align: left;">Secure Hash Algorithm 256-bit</td>
+<td style="text-align: left;">Generates deterministic cryptographic message digests for raw analyses and blocks in the audit chain.</td>
+<td style="text-align: left;"><strong>vs MD5 / SHA-1:</strong> MD5 and SHA-1 have known collision vulnerabilities and are strictly disallowed in digital forensics and court testimony. SHA-256 is mathematically secure and FIPS-compliant.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ReportLab</strong></td>
+<td style="text-align: left;">ReportLab PDF Toolkit</td>
+<td style="text-align: left;">Programmatically draws court-ready forensic PDF dossiers containing metadata, headers, risk scoring, and PII masking.</td>
+<td style="text-align: left;"><strong>vs Browser <code>window.print()</code> / HTML-to-PDF:</strong> Browser printing relies on user screen resolutions and CSS print styles. ReportLab provides pixel-perfect programmatic layout control, embedded tables, and digital watermarking.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="4-deep-dive-core-technical-modules-algorithms">4. Deep Dive: Core Technical Modules &amp; Algorithms</h2>
+<h3 id="41-rfc-822-5322-parsing-engine-parserpy">4.1 RFC 822 / 5322 Parsing Engine (<code>parser.py</code>)</h3>
+<p>When an <code>.eml</code> file or raw text string is submitted:
+1. It is parsed into an <code>email.message.EmailMessage</code> object using modern <code>policy.default</code>.
+2. <strong>Sender Dissection:</strong> <code>From:</code> headers are parsed into <code>display_name</code>, <code>sender_email</code>, and <code>sender_domain</code>.
+3. <strong>Authentication Recovery:</strong> Scans <code>Authentication-Results:</code> and <code>Received-SPF:</code> headers for cryptographic verification results:
+   * <strong>SPF (Sender Policy Framework):</strong> Verifies if sending IP was authorized by sender domain's DNS.
+   * <strong>DKIM (DomainKeys Identified Mail):</strong> Verifies digital cryptographic signature on the email body.
+   * <strong>DMARC (Domain-based Message Authentication):</strong> Enforces alignment between From domain, SPF, and DKIM.
+4. <strong>Received Header Unwinding:</strong> Extracts every <code>Received:</code> header in reverse chronological order. It extracts the intermediary server names, hop IP addresses, and timestamps.
+5. <strong>Originating IP Extraction:</strong> The engine iterates through the relay hops from bottom to top, filtering out private non-routable IP ranges (RFC 1918: <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>, <code>127.0.0.0/8</code>) to isolate the true public originating IP.</p>
+<h3 id="42-multi-layered-threat-scoring-pipeline-detectionpy-mainpy">4.2 Multi-Layered Threat Scoring Pipeline (<code>detection.py</code> + <code>main.py</code>)</h3>
+<p>The system computes an objective <strong>Fraud Score (0 to 100)</strong> through additive heuristic contributions:</p>
+<p>$$\text{Fraud Score} = \min\left(100, \sum \text{Rule Penalty} + \text{NLP Contribution} + \text{Relay Penalty} + \text{Attachment Penalty}\right)$$</p>
+<ul>
+<li><strong>Rule Contributions:</strong></li>
+<li>SPF Fail: <strong>+20 points</strong></li>
+<li>DKIM Fail: <strong>+15 points</strong></li>
+<li>DMARC Fail: <strong>+20 points</strong></li>
+<li>Display Name Spoofing (Display name contains an email differing from <code>From:</code>): <strong>+25 points</strong></li>
+<li>Urgency / Psychological Coercion Keywords ("act now", "suspended immediately"): <strong>+15 points</strong></li>
+<li>Domain Age &lt; 30 days (WHOIS check): <strong>+25 points</strong></li>
+<li>Typosquatting / Lookalike Brand Domain: <strong>+30 points</strong></li>
+<li>Safe Browsing Match / Blacklisted URL: <strong>+40 points</strong></li>
+<li><strong>Classification Thresholds:</strong></li>
+<li><strong>Low Risk (Safe):</strong> $0 \le \text{Score} &lt; 30$ (Green Badge)</li>
+<li><strong>Medium Risk (Caution):</strong> $30 \le \text{Score} &lt; 60$ (Amber Badge)</li>
+<li><strong>High Risk (Threat):</strong> $60 \le \text{Score} \le 100$ (Rose Red Badge)</li>
+</ul>
+<h3 id="43-transformer-nlp-phishing-classification-nlp_scoringpy">4.3 Transformer NLP Phishing Classification (<code>nlp_scoring.py</code>)</h3>
+<ul>
+<li><strong>Architecture:</strong> DistilBERT pre-trained on English language corpora and fine-tuned on labeled email phishing datasets.</li>
+<li><strong>Tokenization:</strong> Inputs are tokenized into sub-word tokens using WordPiece with a <code>max_length</code> of 512 tokens.</li>
+<li><strong>Inference:</strong>
+  $$\text{Logits} = \text{DistilBERT}(\text{Tokens})$$
+  $$P(\text{Phishing}) = \text{Softmax}(\text{Logits})_1 = \frac{e^{z_1}}{e^{z_0} + e^{z_1}}$$</li>
+<li><strong>Score Mapping:</strong></li>
+<li>If $P(\text{Phishing}) \ge 0.85$: Severity is <strong>Critical</strong>, adds <strong>+25 points</strong> to Fraud Score.</li>
+<li>If $0.50 \le P(\text{Phishing}) &lt; 0.85$: Severity is <strong>Medium</strong>, adds <strong>+15 points</strong>.</li>
+<li>If $P(\text{Phishing}) &lt; 0.50$: Phishing probability is low; adds 0 points.</li>
+<li><strong>Fault-Tolerant Design:</strong> The module runs under a global try-except wrapper. If PyTorch or Transformers are absent, it returns <code>None</code>, logs a status message, and the core pipeline continues seamlessly.</li>
+</ul>
+<h3 id="44-indian-government-domain-impersonation-engine-gov_detectionpy">4.4 Indian Government Domain Impersonation Engine (<code>gov_detection.py</code>)</h3>
+<ul>
+<li><strong>Target Agencies:</strong> Recognizes Indian government and public sector institutions: State Bank of India (SBI), Income Tax Department, Reserve Bank of India (RBI), Unique Identification Authority of India (UIDAI / Aadhaar), DigiLocker, Ministry of Home Affairs (MHA), etc.</li>
+<li><strong>Verification Algorithm:</strong></li>
+<li>Compares sender domain against approved top-level domains: <code>\.gov\.in$</code> and <code>\.nic\.in$</code>.</li>
+<li>If matched: sets <code>is_gov = True</code>.</li>
+<li>Scans sender display name, subject, and email body for government entity keywords (e.g., "State Bank of India", "Income Tax", "Police Cyber Cell").</li>
+<li>If keywords are found: sets <code>claims_gov = True</code>.</li>
+<li><strong>Alert Trigger:</strong>
+  $$\text{Claims Gov} \land \neg \text{Is Gov} \implies \text{\textbf{CRITICAL GOVERNMENT IMPERSONATION WARNING}}$$
+  In the UI, this triggers a flashing red banner alert indicating an illegal impersonation attempt.</li>
+</ul>
+<h3 id="45-wikipedia-rest-api-dynamic-brand-trust-engine-brand_verificationpy">4.5 Wikipedia REST API Dynamic Brand Trust Engine (<code>brand_verification.py</code>)</h3>
+<p>Instead of a static dictionary, the system performs dynamic OSINT:
+1. <strong>Entity Extraction:</strong> Extracts claimed corporate identity from <code>display_name</code> or domain tokens.
+2. <strong>Wikipedia Query:</strong> Queries <code>https://en.wikipedia.org/api/rest_v1/page/summary/{brand}</code>. If Wikipedia returns an authentic organizational summary, <code>brand_verified = True</code>.
+3. <strong>Official Domain Discovery:</strong> Extracts the authoritative website URL from the Wikipedia data and compares it to the actual email sender domain.
+4. <strong>Brand Trust Score (0 to 100):</strong>
+   * Starts at base: <strong>50</strong>
+   * Wikipedia Verified Entity: <strong>+20</strong>
+   * Sender Domain matches Official Domain: <strong>+30</strong>
+   * Lookalike / Typosquat Detected: <strong>-40</strong>
+   * New Domain (&lt;30 days): <strong>-20</strong>
+   * Email Authentication Failure: <strong>-10 per failure</strong>
+   * Safe Browsing Blacklist: <strong>-30</strong></p>
+<h3 id="46-per-hop-network-relay-anomaly-detection-relay_anomalypy">4.6 Per-Hop Network Relay Anomaly Detection (<code>relay_anomaly.py</code>)</h3>
+<p>Using per-hop IP geolocation (via IP-API batch requests), the relay engine flags 4 critical network anomalies:
+1. <strong>Time-Gap / Forgery Anomaly:</strong> Checks $\Delta t = t_{\text{hop}<em>n} - t</em>{\text{hop}<em>{n-1}}$.
+   * If $\Delta t &lt; -60\text{ seconds}$: Flags <strong>Negative Time Gap</strong> (indicates forged RFC 822 timestamps).
+   * If $\Delta t &gt; 1800\text{ seconds}$ (30 min): Flags <strong>Unusual Transit Latency</strong> (suspicious queuing).
+2. <strong>Geographic Impossibility:</strong>
+   * Maps each hop's country to its continent (NA, SA, EU, AS, AF, OC).
+   * If $\text{Continent}</em>{n} \ne \text{Continent}_{n-1}$ and $\Delta t &lt; 60\text{ seconds}$, flags <strong>Geographic Impossibility</strong> (data packets cannot traverse continents in seconds through mail relays).
+3. <strong>Relay Bouncing:</strong> Flags any relay chain with $&gt; 8\text{ hops}$ (typical of botnet obfuscation).
+4. <strong>Return-Path vs From Mismatch:</strong> Flags when the envelope sender domain differs from the header sender domain.</p>
+<h3 id="47-attachment-danger-analysis-attachment_analysispy">4.7 Attachment Danger Analysis (<code>attachment_analysis.py</code>)</h3>
+<p>Inspects MIME parts marked as attachments:
+* <strong>Double Extension Check:</strong> Identifies patterns like <code>document.pdf.exe</code> or <code>invoice.xlsx.scr</code>.
+* <strong>Executable Extensions:</strong> Flags <code>.exe</code>, <code>.scr</code>, <code>.bat</code>, <code>.cmd</code>, <code>.msi</code>, <code>.ps1</code>, <code>.vbs</code>, etc.
+* <strong>Macro-Enabled Documents:</strong> Flags <code>.docm</code>, <code>.xlsm</code>, <code>.pptm</code> which can trigger malicious VBA code upon opening.
+* <strong>Safe Handling Guarantee:</strong> Only file metadata (name, MIME type, byte size) is analyzed and recorded. Raw binary payloads are never executed or stored.</p>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h3 id="48-the-blockchain-inspired-audit-chain-deep-dive">4.8 The Blockchain-Inspired Audit Chain (Deep Dive)</h3>
+<h4 id="why-was-this-built-the-problem">Why Was This Built? (The Problem)</h4>
+<p>In digital forensics and incident response, evidence presented in legal proceedings or insurance claims must satisfy the <strong>Chain of Custody</strong> requirement. If an organization stores threat logs in an ordinary SQL database, an adversary with database access (or a rogue insider) could modify an analysis record (e.g., lowering a fraud score from 95 to 10) to cover up an intrusion. Standard databases lack native mathematical immutability.</p>
+<h4 id="how-it-works-the-solution">How It Works (The Solution)</h4>
+<p>Our platform implements a tamper-evident cryptographic hash chain running on <strong>SHA-256</strong>:</p>
+<pre><code>[ GENESIS BLOCK #0 ]
+  Hash: &quot;0&quot;
+       │
+       ▼
+[ BLOCK #1 ]
+  Analysis Hash: SHA256( Canonical_JSON( Analysis #1 ) )
+  Previous Hash: &quot;0&quot;
+  Block Hash:    SHA256( &quot;0&quot; + Analysis_Hash_1 + Timestamp_1 )
+       │
+       ▼
+[ BLOCK #2 ]
+  Analysis Hash: SHA256( Canonical_JSON( Analysis #2 ) )
+  Previous Hash: Block Hash #1
+  Block Hash:    SHA256( Block_Hash_1 + Analysis_Hash_2 + Timestamp_2 )
+       │
+       ▼
+[ BLOCK #n ]
+  Block Hash:    SHA256( Block_Hash_(n-1) + Analysis_Hash_n + Timestamp_n )
+</code></pre>
+<h4 id="the-verification-algorithm-get-verifyanalysis_id">The Verification Algorithm (<code>GET /verify/{analysis_id}</code>)</h4>
+<p>When an investigator clicks <strong>"Verify Integrity"</strong> on the dashboard:
+1. The backend retrieves all blocks from Block #0 to the targeted block index.
+2. It fetches the original stored analysis JSON and re-computes its canonical SHA-256 hash.
+3. It iterates forward from genesis, recalculating every <code>block_hash</code> using the previous block's hash.
+4. If a single byte in any past analysis was modified, the recalculation produces a mismatch:
+   $$\text{Calculated Hash} \ne \text{Stored Hash} \implies \text{\textbf{CHAIN INTEGRITY COMPROMISED}}$$
+5. If all hashes match: returns <code>verified: True</code>, confirming the evidence is authentic and tamper-free.</p>
+<hr />
+<h3 id="49-court-ready-pdf-forensic-report-generator-with-pii-masking-report_generatorpy">4.9 Court-Ready PDF Forensic Report Generator with PII Masking (<code>report_generator.py</code>)</h3>
+<p>Built using ReportLab, this module outputs an official digital forensic dossier:
+* <strong>Header &amp; Metadata:</strong> Case ID, Timestamp, Cryptographic Block Index.
+* <strong>Visual Score Summary:</strong> Color-coded threat badge, Risk Score gauge.
+* <strong>Findings Matrix:</strong> Detailed table of every heuristic rule, severity, and score penalty.
+* <strong>Network Attribution:</strong> Originating IP, AS-Org, Country, ISP, and Relay Path.
+* <strong>Authentication Results:</strong> Explicit breakdown of SPF, DKIM, and DMARC status.
+* <strong>PII Masking Toggle (<code>mask_pii=True</code>):</strong>
+  * Email Masking: <code>john.doe@company.com</code> $\to$ <code>j***@c***.com</code>
+  * IP Masking: <code>198.51.100.45</code> $\to$ <code>xxx.xxx.xxx.45</code>
+  * Display Names: <code>John Doe</code> $\to$ <code>[REDACTED]</code>
+  * Allows sharing reports with external teams without violating privacy regulations.</p>
+<h3 id="410-searchable-investigation-history-case-management-historypagejsx-databasepy">4.10 Searchable Investigation History &amp; Case Management (<code>HistoryPage.jsx</code> + <code>database.py</code>)</h3>
+<ul>
+<li>Provides a SOC case view querying <code>GET /history</code>.</li>
+<li>Supports real-time debounced text searching across sender email, sender domain, and email subject.</li>
+<li>Risk-level filter buttons (All, High, Medium, Low).</li>
+<li>Clicking <strong>"View Analysis"</strong> loads historical records into the main dashboard without needing to re-upload the email.</li>
+</ul>
+<h3 id="411-chrome-extension-manifest-v3-extension">4.11 Chrome Extension (Manifest V3) (<code>extension/</code>)</h3>
+<ul>
+<li><strong>Role:</strong> Convenience input layer for Google Chrome.</li>
+<li><strong>Permissions:</strong> Restricted strictly to <code>activeTab</code> and <code>scripting</code> on <code>mail.google.com</code>.</li>
+<li><strong>Mechanism:</strong> When the user clicks the toolbar icon on an open Gmail email, a content script extracts visible header and body fields, formats them into standard RFC text, and submits them to the backend API (<code>POST /analyze</code>).</li>
+<li><strong>Instant Feedback:</strong> Displays the Risk Level, Fraud Score, and any Government Impersonation warnings inside the popup, with a direct link to open the full analysis in the Web Dashboard.</li>
+</ul>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="5-system-workflow-data-flow-diagrams">5. System Workflow &amp; Data Flow Diagrams</h2>
+<h3 id="51-end-to-end-analysis-pipeline">5.1 End-to-End Analysis Pipeline</h3>
+<pre><code>[ Inbound Email (.eml / Gmail) ]
+               │
+               ▼
+   [ RFC 822 MIME Parser ] ───► Extract Sender, Headers, Body, Links, Attachments
+               │
+   ┌───────────┴────────────────────────────────────────────────┐
+   │                                                            │
+   ▼                                                            ▼
+[ Heuristic Engine ]                                 [ DistilBERT Transformer ]
+• SPF/DKIM/DMARC checks                              • Tokenize (WordPiece)
+• Display name spoofing                              • Phishing probability logit
+• RapidFuzz Typosquatting                            • +15 to +25 score penalty
+• Keyword &amp; urgency checks                                      │
+   │                                                            │
+   └───────────────────────────┬────────────────────────────────┘
+                               │
+                               ▼
+   ┌────────────────────────────────────────────────────────────┐
+   │                  ENRICHMENT &amp; INTELLIGENCE                 │
+   ├────────────────────────────────────────────────────────────┤
+   │ • Indian Gov Check   ──► .gov.in / nic.in validation       │
+   │ • Brand Verification ──► Wikipedia API query               │
+   │ • IP-API Geolocation ──► Origin coords + Batch Relay Hops  │
+   │ • Relay Anomalies    ──► Time gaps, continent hops, bounce │
+   │ • Attachments        ──► Double ext, macros, executables   │
+   └───────────────────────────┬────────────────────────────────┘
+                               │
+                               ▼
+                   [ Compute Unified Fraud Score ]
+                     (0 - 100 Risk Classification)
+                               │
+                               ▼
+            [ Persist Analysis in SQLite DB ]
+                               │
+                               ▼
+            [ Append to SHA-256 Blockchain Chain ]
+            (Generates Block Index &amp; Tamper Receipt)
+                               │
+                               ▼
+       [ Return JSON Response to React Dashboard / Extension ]
+</code></pre>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="6-judges-qa-preparation-25-hard-technical-conceptual-questions">6. Judges Q&amp;A Preparation: 25+ Hard Technical &amp; Conceptual Questions</h2>
+<p>Review these questions with your team. Every member should be familiar with the answers in their area.</p>
+<hr />
+<h3 id="category-a-architecture-stack-design-decisions">Category A: Architecture, Stack &amp; Design Decisions</h3>
+<h4 id="q1-why-did-you-build-a-web-dashboard-and-a-chrome-extension-instead-of-choosing-just-one">Q1: Why did you build a Web Dashboard AND a Chrome Extension instead of choosing just one?</h4>
+<blockquote>
+<p><strong>Answer:</strong> They serve two different personas. Everyday employees need zero-friction, 1-click protection inside their email client (Gmail) without uploading files. Security analysts and law enforcement investigators need a comprehensive forensic workspace with maps, relay timelines, blockchain verification, and PDF generation. The Chrome Extension acts as the convenience input layer, while the Web Dashboard serves as the deep investigation hub.</p>
+</blockquote>
+<h4 id="q2-why-did-you-choose-fastapi-over-flask-or-django">Q2: Why did you choose FastAPI over Flask or Django?</h4>
+<blockquote>
+<p><strong>Answer:</strong> FastAPI is built natively on ASGI using <code>uvloop</code>, making it asynchronous and up to 300% faster than Flask. In an email gateway processing hundreds of concurrent MIME payloads, synchronous Flask threads would block. FastAPI also integrates Pydantic for automatic request validation and automatically generates interactive Swagger API documentation at <code>/docs</code>. Django was avoided because its monolithic ORM and admin boilerplate add unnecessary overhead for a microservice API.</p>
+</blockquote>
+<h4 id="q3-why-sqlite-instead-of-postgresql-or-mongodb">Q3: Why SQLite instead of PostgreSQL or MongoDB?</h4>
+<blockquote>
+<p><strong>Answer:</strong> For a forensic security appliance or rapid-deployment triage tool, zero-configuration deployment is a key advantage. SQLite stores everything in a single, portable file (<code>email_threat.db</code>), requiring no external database server, credentials, or network configuration. SQLite easily handles up to 100,000 queries per day with microsecond response times. Because our backend uses standard SQL, transitioning to PostgreSQL in a scaled enterprise deployment requires changing only the database connection string.</p>
+</blockquote>
+<h4 id="q4-why-vite-instead-of-create-react-app">Q4: Why Vite instead of Create React App?</h4>
+<blockquote>
+<p><strong>Answer:</strong> Create React App is officially deprecated by the React team and relies on Webpack, which bundles the entire codebase in memory before serving, resulting in slow startup and build times. Vite leverages native ES Modules (ESM) in the browser, providing sub-second Hot Module Replacement (HMR) during development and faster, smaller production bundles.</p>
+</blockquote>
+<hr />
+<h3 id="category-b-ai-machine-learning-detection-edge-cases">Category B: AI, Machine Learning &amp; Detection Edge Cases</h3>
+<h4 id="q5-why-distilbert-why-not-use-an-llm-api-like-gpt-4-or-claude">Q5: Why DistilBERT? Why not use an LLM API like GPT-4 or Claude?</h4>
+<blockquote>
+<p><strong>Answer:</strong> 
+1. <strong>Data Privacy &amp; Compliance:</strong> Sending sensitive corporate or government emails to third-party US cloud APIs violates data privacy regulations like GDPR and India's Digital Personal Data Protection (DPDP) Act 2023. Our model runs <strong>100% locally on-premise</strong>.
+2. <strong>Operational Cost:</strong> Cloud LLM APIs charge per token. Scanning millions of enterprise emails via GPT-4 would be cost-prohibitive.
+3. <strong>Latency:</strong> DistilBERT inference takes approximately 20–50 ms on standard CPUs, whereas cloud LLM round-trips take 1.5 to 3 seconds.
+4. <strong>Efficiency:</strong> DistilBERT retains <strong>97% of BERT's language understanding</strong> while being <strong>40% smaller and 60% faster</strong>.</p>
+</blockquote>
+<h4 id="q6-how-do-you-handle-false-positives-where-a-legitimate-marketing-email-uses-urgent-language">Q6: How do you handle false positives where a legitimate marketing email uses urgent language?</h4>
+<blockquote>
+<p><strong>Answer:</strong> The system uses a multi-layered scoring pipeline rather than relying on any single check. Urgent language alone contributes only +15 points, keeping the email safely in the <strong>Low Risk</strong> category (&lt;30). An email is only flagged as High Risk (60+) if urgent language is combined with technical failure indicators, such as SPF/DKIM authentication failures, typosquatted domains, or lookalike display names.</p>
+</blockquote>
+<h4 id="q7-what-happens-if-the-server-hosting-this-system-doesnt-have-a-gpu-or-enough-ram-to-run-pytorch">Q7: What happens if the server hosting this system doesn't have a GPU or enough RAM to run PyTorch?</h4>
+<blockquote>
+<p><strong>Answer:</strong> We implemented <strong>Graceful AI Degradation</strong> in <code>nlp_scoring.py</code>. If PyTorch or Transformers fail to load, the system catches the exception at startup, logs a warning, and continues operating using the rule-based heuristic and OSINT engines. The platform maintains <strong>100% operational uptime</strong> even on low-resource hardware.</p>
+</blockquote>
+<hr />
+<h3 id="category-c-blockchain-cryptography-chain-of-custody">Category C: Blockchain, Cryptography &amp; Chain of Custody</h3>
+<h4 id="q8-why-did-you-use-a-blockchain-style-hash-chain-instead-of-a-regular-database-table">Q8: Why did you use a blockchain-style hash chain instead of a regular database table?</h4>
+<blockquote>
+<p><strong>Answer:</strong> Standard database records can be altered using a basic <code>UPDATE</code> query. If a system administrator or attacker modifies an email's risk score from 90 to 10, a traditional database shows no sign of tampering. Our audit chain cryptographically links each record to the previous one using SHA-256:
+$$\text{Block Hash}<em>n = \text{SHA256}(\text{Block Hash}</em>{n-1} + \text{Analysis Hash}_n + \text{Timestamp})$$
+If an attacker changes a single byte in an earlier record, the hash of that block changes, breaking all subsequent block hashes. When the <code>/verify/{id}</code> endpoint recalculates the chain, it immediately detects the tampering.</p>
+</blockquote>
+<h4 id="q9-why-didnt-you-use-a-public-blockchain-like-ethereum-or-polygon">Q9: Why didn't you use a public blockchain like Ethereum or Polygon?</h4>
+<blockquote>
+<p><strong>Answer:</strong>
+1. <strong>Data Privacy:</strong> Public blockchains are publicly viewable. Even hashed email metadata could leak sensitive communication patterns.
+2. <strong>Transaction Fees (Gas):</strong> Recording an audit block on a public chain costs transaction fees for every email scanned, making it impractical at enterprise scale.
+3. <strong>Latency:</strong> Public blockchains require block confirmation times of 12 seconds to several minutes. Our internal SHA-256 hash chain provides instantaneous cryptographic immutability with zero gas costs.</p>
+</blockquote>
+<h4 id="q10-what-happens-if-an-attacker-deletes-the-entire-database-file">Q10: What happens if an attacker deletes the entire database file?</h4>
+<blockquote>
+<p><strong>Answer:</strong> Deleting the database is an availability attack, which is mitigated using standard database replication, automated offsite backups, and write-once-read-many (WORM) storage. The primary purpose of the cryptographic audit chain is to prevent <strong>silent data tampering</strong>—ensuring that existing records cannot be altered undetected.</p>
+</blockquote>
+<hr />
+<h3 id="category-d-network-forensics-spoofing-geolocation">Category D: Network Forensics, Spoofing &amp; Geolocation</h3>
+<h4 id="q11-can-an-attacker-forge-the-received-headers-to-hide-their-true-origin">Q11: Can an attacker forge the <code>Received:</code> headers to hide their true origin?</h4>
+<blockquote>
+<p><strong>Answer:</strong> An attacker can forge <code>Received:</code> headers that they inject themselves on their own server. However, they <strong>cannot</strong> forge the <code>Received:</code> header added by the <em>receiving</em> mail server (e.g., Google or Microsoft), because that header is written directly by the recipient's infrastructure. Our parser processes relay headers from bottom to top, identifying the first trustworthy public hop and checking for header forgery through negative time gaps and geographical impossibilities.</p>
+</blockquote>
+<h4 id="q12-how-do-you-detect-geographic-impossibility-in-relay-hops">Q12: How do you detect "Geographic Impossibility" in relay hops?</h4>
+<blockquote>
+<p><strong>Answer:</strong> We map the IP address of each relay hop to its continent using our batch IP-API integration. We then check the timestamp delta between consecutive hops. If Hop A is in Germany (Europe) and Hop B is in Australia (Oceania), and the transit time is less than 60 seconds, we flag a <strong>Geographic Impossibility Anomaly</strong>. Email relaying across continents requires physical network transit, DNS resolution, and queuing that cannot realistically complete in a few seconds.</p>
+</blockquote>
+<h4 id="q13-what-if-the-attacker-uses-a-vpn-or-tor-exit-node">Q13: What if the attacker uses a VPN or Tor exit node?</h4>
+<blockquote>
+<p><strong>Answer:</strong> If an attacker sends an email through a commercial VPN or Tor exit node, the originating IP will resolve to the VPN datacenter's ISP. Our IP-API integration captures the Autonomous System Organization (<code>org</code> field). In our scoring engine, emails claiming to originate from private individuals or banks that route through known hosting datacenters (e.g., DigitalOcean, Linode, OVH) rather than residential or corporate mail relays receive elevated suspicion scores.</p>
+</blockquote>
+<hr />
+<h3 id="category-e-privacy-compliance-real-world-feasibility">Category E: Privacy, Compliance &amp; Real-World Feasibility</h3>
+<h4 id="q14-how-does-your-system-comply-with-data-privacy-laws-like-indias-dpdp-act-2023-or-gdpr">Q14: How does your system comply with data privacy laws like India's DPDP Act 2023 or GDPR?</h4>
+<blockquote>
+<p><strong>Answer:</strong>
+1. <strong>Local Processing:</strong> No email content is sent to third-party AI APIs.
+2. <strong>PII Masking:</strong> The report generator includes an automated PII Masking engine that redacts sender names to <code>[REDACTED]</code>, masks emails to <code>u***@d***.com</code>, and anonymizes IP addresses to <code>xxx.xxx.xxx.42</code>.
+3. <strong>Payload Safety:</strong> Raw attachment binaries are never saved to disk—only metadata (filename, extension, size) is inspected.</p>
+</blockquote>
+<h4 id="q15-is-this-solution-economically-viable-for-a-government-cyber-cell-or-an-enterprise">Q15: Is this solution economically viable for a government cyber cell or an enterprise?</h4>
+<blockquote>
+<p><strong>Answer:</strong> Yes. The entire stack is built on open-source software with zero licensing fees:
+* Frontend: React/Vite (Free open-source, hosted for free on GitHub Pages).
+* Backend: FastAPI &amp; Python (Free open-source).
+* AI: DistilBERT (Open-source Hugging Face model running on standard CPU/GPU).
+* Database: SQLite (Free open-source).
+The operational cost for a deployment is limited to standard cloud compute infrastructure, with no per-seat or per-token fees.</p>
+</blockquote>
+<h4 id="q16-how-does-the-system-scale-to-handle-millions-of-emails-per-day">Q16: How does the system scale to handle millions of emails per day?</h4>
+<blockquote>
+<p><strong>Answer:</strong> 
+1. <strong>Asynchronous Architecture:</strong> FastAPI handles I/O-bound requests asynchronously without blocking.
+2. <strong>Batch Geolocation:</strong> Resolving relay IPs in batches of 15 reduces external network requests by up to 90%.
+3. <strong>Microservices Ready:</strong> The architecture separates the parsing, AI inference, and storage layers. In an enterprise deployment, the DistilBERT inference can run on a dedicated worker pool (e.g., Celery + Redis), and the SQLite database can be swapped to PostgreSQL with connection pooling.</p>
+</blockquote>
+<hr />
+<h3 id="category-f-live-demonstration-code-walkthrough-traps">Category F: Live Demonstration &amp; Code Walkthrough Traps</h3>
+<h4 id="q17-show-me-where-the-indian-government-domain-check-is-implemented">Q17: "Show me where the Indian government domain check is implemented."</h4>
+<blockquote>
+<p><strong>Answer:</strong> "It is implemented in <code>backend/gov_detection.py</code>. The function <code>check_gov_domain()</code> uses regular expressions to verify if the domain ends in <code>.gov.in</code> or <code>.nic.in</code>. It then scans the display name and email body for government keywords like 'Income Tax', 'State Bank of India', or 'Police'. If an email claims government affiliation without an authorized domain, it sets <code>claims_gov: True</code> and <code>is_gov: False</code>, which triggers the red warning banner in <code>GovDomainBanner.jsx</code>."</p>
+</blockquote>
+<h4 id="q18-show-me-how-the-blockchain-integrity-verification-works-in-the-code">Q18: "Show me how the blockchain integrity verification works in the code."</h4>
+<blockquote>
+<p><strong>Answer:</strong> "In <code>backend/blockchain.py</code>, the <code>create_block()</code> function computes <code>analysis_hash = hashlib.sha256(json.dumps(analysis, sort_keys=True).encode()).hexdigest()</code> and links it to <code>previous_block_hash</code>. In <code>verify_chain(analysis_id)</code>, it fetches the full chain from Block #1, recomputes the SHA-256 hash for every historical block, and verifies that the recalculated hash matches the stored <code>block_hash</code>. If any record was altered, the verification fails."</p>
+</blockquote>
+<h4 id="q19-what-happens-if-wikipedia-is-down-or-rate-limits-the-brand-verification-check">Q19: "What happens if Wikipedia is down or rate-limits the Brand Verification check?"</h4>
+<blockquote>
+<p><strong>Answer:</strong> "In <code>backend/brand_verification.py</code>, the Wikipedia API call is enclosed in a <code>try-except</code> block with a short 4-second timeout. If the request times out, fails, or is rate-limited, the system catches the error, sets <code>brand_verified = False</code>, and assigns a default neutral Brand Trust Score of 50. The core threat detection pipeline continues running without interruption."</p>
+</blockquote>
+<h4 id="q20-why-doesnt-your-chrome-extension-require-permission-to-read-all-websites">Q20: "Why doesn't your Chrome extension require permission to read all websites?"</h4>
+<blockquote>
+<p><strong>Answer:</strong> "Following the principle of least privilege, our <code>manifest.json</code> uses Google Chrome's <strong>Manifest V3</strong> standard. It requests only <code>activeTab</code> and <code>scripting</code> permissions, with <code>host_permissions</code> restricted strictly to <code>https://mail.google.com/*</code> and our backend API. It cannot access any other browser tabs, browsing history, or personal data."</p>
+</blockquote>
+<hr />
+<div style="page-break-after: always;"></div>
+
+<h2 id="7-step-by-step-live-demo-script-for-judges">7. Step-by-Step Live Demo Script for Judges</h2>
+<p>When presenting at 3:00 PM, follow this 3-minute demonstration flow:</p>
+<ol>
+<li><strong>Step 1: The Context &amp; Problem (30 Seconds)</strong></li>
+<li><em>"Respected judges, over 90% of cyber breaches begin with email threats that evade standard spam filters through typosquatting, government impersonation, and relay bouncing. We built SIH26106 to solve this with a unified, tamper-evident forensic platform."</em></li>
+<li><strong>Step 2: The Chrome Extension (Convenience Input Layer) (45 Seconds)</strong></li>
+<li>Open an email in Gmail.</li>
+<li>Click the <strong>SIH26106 Threat Scanner</strong> Chrome extension icon.</li>
+<li>Click <strong>"Scan Current Email"</strong>.</li>
+<li>Point out the instant result: <strong>Risk Level: HIGH</strong>, <strong>Fraud Score: 85/100</strong>, and the red warning: <strong>⚠️ Government Impersonation Detected!</strong></li>
+<li>Click <strong>"Open Full Forensic Report"</strong> to transition to the main dashboard.</li>
+<li><strong>Step 3: The Deep-Dive Forensic Dashboard (60 Seconds)</strong></li>
+<li><strong>Government Alert Banner:</strong> Show the red banner highlighting unauthorized origin for an entity claiming government status.</li>
+<li><strong>Brand Trust Panel:</strong> Point out the Wikipedia verification and trust score breakdown.</li>
+<li><strong>Geographic Map &amp; Relay Path:</strong> Show the Leaflet map tracking the originating IP and the relay timeline with detected anomaly alerts.</li>
+<li><strong>Attachment Analysis:</strong> Show the flagged double-extension file (<code>invoice.pdf.exe</code>).</li>
+<li><strong>Step 4: The Innovation — Blockchain Audit &amp; Court Report (45 Seconds)</strong></li>
+<li>Scroll to the <strong>Blockchain Audit Receipt</strong>.</li>
+<li>Click <strong>"Verify Integrity"</strong> $\to$ show the green verification banner: <em>"Immutable Chain Verified: Record Tamper-Free ✓"</em>.</li>
+<li>Click <strong>"Download Forensic Report (PDF)"</strong> $\to$ toggle <strong>Mask PII</strong> $\to$ download the generated PDF and open it to demonstrate the court-ready evidence report.</li>
+<li><strong>Step 5: Conclusion</strong></li>
+<li><em>"Our platform bridges the gap between everyday employee usability and deep, tamper-evident forensic intelligence for cyber defense cells. Thank you!"</em></li>
+</ol>
+<hr />
+<p><em>End of Technical Dossier. Built with pride for Smart India Hackathon 2026.</em></p>
+</body>
+</html>
