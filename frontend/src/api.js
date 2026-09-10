@@ -15,7 +15,7 @@ export const getApiBase = () => {
   if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:8000';
   }
-  return 'https://sih26106-backend.onrender.com';
+  return 'https://sih26106-backend-t9r0.onrender.com';
 };
 
 const API_BASE = getApiBase();

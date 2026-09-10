@@ -44,6 +44,16 @@ def startup_event():
     else:
         logger.info("📋 NLP model unavailable — using rule-based detection only")
 
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "service": "SIH26106 Email Threat Detection & Forensic Intelligence API",
+        "health": "/health",
+        "docs": "/docs",
+        "endpoints": ["/analyze", "/report/{id}", "/verify/{id}", "/history"]
+    }
+
 @app.get("/health")
 def health():
     return {

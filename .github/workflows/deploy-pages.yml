@@ -37,7 +37,7 @@ jobs:
         # VITE_API_URL points to the Render-hosted FastAPI backend.
         # This means the GitHub Pages site will call the live online backend —
         # everyone can use PDF download, blockchain verify, and history without installing anything.
-        run: VITE_API_URL=https://sih26106-backend.onrender.com npm run build
+        run: VITE_API_URL=https://sih26106-backend-t9r0.onrender.com npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
