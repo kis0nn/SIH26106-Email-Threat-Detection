@@ -32,9 +32,12 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
-      - name: Build frontend
+      - name: Build frontend (with Render backend URL)
         working-directory: ./frontend
-        run: npm run build
+        # VITE_API_URL points to the Render-hosted FastAPI backend.
+        # This means the GitHub Pages site will call the live online backend —
+        # everyone can use PDF download, blockchain verify, and history without installing anything.
+        run: VITE_API_URL=https://sih26106-backend.onrender.com npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

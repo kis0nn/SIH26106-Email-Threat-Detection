@@ -6,6 +6,4 @@ beautifulsoup4
 requests
 rapidfuzz
 python-whois
-transformers
-torch
 reportlab
