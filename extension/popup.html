@@ -2,105 +2,152 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Analyze Email Threat</title>
+  <title>SIH26106 Threat Scanner</title>
   <style>
     body {
       width: 340px;
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f9fafb;
+      background: #f9fafb;
       color: #111827;
     }
     .header {
-      background-color: #2563eb;
+      background: #2563eb;
       color: white;
       padding: 12px 16px;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .header svg { width: 20px; height: 20px; }
-    .content { padding: 16px; }
+    .header svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .content { padding: 14px 16px; }
+    .desc { font-size: 13px; color: #4b5563; margin: 0 0 12px; }
+
     .btn {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       width: 100%;
-      background-color: #2563eb;
-      color: white;
       border: none;
       padding: 10px;
-      border-radius: 6px;
+      border-radius: 7px;
       font-weight: 600;
+      font-size: 13px;
       cursor: pointer;
-      text-align: center;
-      margin-top: 12px;
-      transition: background-color 0.2s;
+      box-sizing: border-box;
+      transition: opacity 0.15s;
     }
-    .btn:hover { background-color: #1d4ed8; }
-    .btn:disabled { background-color: #93c5fd; cursor: not-allowed; }
-    
+    .btn:hover  { opacity: 0.88; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-blue  { background: #2563eb; color: white; margin-bottom: 8px; }
+    .btn-green { background: #059669; color: white; }
+
+    .status {
+      font-size: 12px;
+      min-height: 18px;
+      margin: 8px 0 0;
+      text-align: center;
+    }
+
     .result-card {
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       padding: 12px;
-      margin-top: 12px;
+      margin-top: 10px;
       display: none;
     }
-    .score-high { color: #e11d48; font-weight: bold; }
-    .score-medium { color: #d97706; font-weight: bold; }
-    .score-low { color: #059669; font-weight: bold; }
-    
-    .status {
-      font-size: 13px;
-      color: #4b5563;
-      margin-top: 8px;
-      text-align: center;
+    .result-row { font-size: 13px; margin-bottom: 5px; }
+    .score-high   { color: #be123c; font-weight: 700; }
+    .score-medium { color: #b45309; font-weight: 700; }
+    .score-low    { color: #047857; font-weight: 700; }
+
+    .gov-warn {
+      display: none;
+      background: #fee2e2;
+      color: #be123c;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      margin: 8px 0;
     }
-    
+
     .link-btn {
       display: block;
       width: 100%;
-      background-color: white;
+      background: white;
       color: #2563eb;
       border: 1px solid #2563eb;
       padding: 8px;
       border-radius: 6px;
       font-weight: 600;
+      font-size: 13px;
       cursor: pointer;
       text-align: center;
-      margin-top: 8px;
       text-decoration: none;
       box-sizing: border-box;
+      margin-top: 8px;
     }
-    .link-btn:hover { background-color: #eff6ff; }
+    .link-btn:hover { background: #eff6ff; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 12px 0;
+    }
+    .hint {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
     </svg>
     SIH26106 Threat Scanner
   </div>
-  
+
   <div class="content">
-    <p style="font-size: 14px; margin-top: 0;">Scan the currently open Gmail email for phishing, brand impersonation, and spoofing.</p>
-    
-    <button id="scanBtn" class="btn">Scan Current Email</button>
+    <p class="desc">AI-powered phishing, spoofing &amp; brand impersonation scanner for Gmail.</p>
+
+    <!-- Button 1: scan the open email -->
+    <button id="scanBtn" class="btn btn-blue">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+      </svg>
+      Scan Open Email
+    </button>
+
+    <!-- Button 2: scan inbox list -->
+    <button id="scanListBtn" class="btn btn-green">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+      </svg>
+      Scan Inbox List (Inline Badges)
+    </button>
+
     <div id="status" class="status"></div>
-    
+
+    <!-- Result card shown after scanning open email -->
     <div id="resultCard" class="result-card">
-      <h3 style="margin: 0 0 8px 0; font-size: 15px;">Analysis Complete</h3>
-      <div style="font-size: 14px; margin-bottom: 4px;">Risk Level: <span id="riskLevel"></span></div>
-      <div style="font-size: 14px; margin-bottom: 8px;">Fraud Score: <span id="fraudScore"></span></div>
-      
-      <div id="govWarning" style="display: none; background: #ffe4e6; color: #e11d48; padding: 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 8px;">
-        ⚠️ Government Impersonation Detected!
-      </div>
-      
-      <a id="dashboardLink" href="#" target="_blank" class="link-btn">Open Full Forensic Report</a>
+      <div class="result-row">Risk Level: <span id="riskLevel"></span></div>
+      <div class="result-row">Fraud Score: <span id="fraudScore"></span></div>
+      <div id="govWarn" class="gov-warn">⚠️ Government Impersonation Detected!</div>
+      <a id="dashboardLink" href="#" target="_blank" class="link-btn">Open Full Forensic Report ↗</a>
     </div>
+
+    <hr class="divider">
+    <p class="hint">Backend must be running on localhost:8000</p>
   </div>
 
   <script src="popup.js"></script>
