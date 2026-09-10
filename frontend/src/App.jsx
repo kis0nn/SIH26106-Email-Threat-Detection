@@ -154,6 +154,7 @@ function App() {
         onClose={() => setShowReportModal(false)}
         analysisId={result?.id}
         blockchainReceipt={result?.blockchain_receipt}
+        analysisData={result}
       />
     </div>
   );

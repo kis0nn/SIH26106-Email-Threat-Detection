@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { FileText, X, Download, Loader2, Shield } from 'lucide-react';
+import { FileText, X, Download, Loader2, Shield, Printer } from 'lucide-react';
 import { downloadReport } from '../api';
 
-const ReportModal = ({ isOpen, onClose, analysisId, blockchainReceipt }) => {
+const ReportModal = ({ isOpen, onClose, analysisId, blockchainReceipt, analysisData }) => {
   const [maskPii, setMaskPii] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -10,31 +10,92 @@ const ReportModal = ({ isOpen, onClose, analysisId, blockchainReceipt }) => {
   if (!isOpen) return null;
 
   const handleDownload = async () => {
-    if (!analysisId) {
+    if (!analysisId && !analysisData) {
       setError('No analysis found. Please scan an email first, then try again.');
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const blob = await downloadReport(analysisId, maskPii);
+      const blob = await downloadReport(analysisId || 'report', maskPii, analysisData);
       const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `forensic_report_${analysisId.substring(0, 8)}.pdf`);
+      link.setAttribute('download', `forensic_report_${(analysisId || 'case').substring(0, 8)}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      const msg = err?.response?.status === 404
-        ? 'Analysis not found. The backend database may have been reset.'
-        : 'Could not connect to backend. Make sure start.bat is running.';
-      setError(`⚠️ ${msg}`);
       console.error('PDF download error:', err);
+      // Fallback: Generate printable view directly if backend is completely unavailable
+      setError('Backend unreachable. Click below to print or save forensic report as PDF directly from browser:');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePrintFallback = () => {
+    const data = analysisData || {};
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const mask = (str) => {
+      if (!maskPii || !str) return str || '';
+      return str.replace(/([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '***@$2');
+    };
+
+    const senderEmail = mask(data.sender?.email || 'Unknown');
+    const senderName = mask(data.sender?.display_name || '');
+    const subject = data.subject || 'No Subject';
+    const fraudScore = data.fraud_score ?? 0;
+    const riskLevel = (data.risk_level || 'low').toUpperCase();
+    const findings = data.findings || [];
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Forensic Email Report - ${displayId}</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; color: #1e293b; }
+          .header { border-bottom: 3px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
+          .title { font-size: 24px; font-bold: bold; color: #1e3a5f; margin: 0; }
+          .subtitle { font-size: 14px; color: #64748b; margin-top: 4px; }
+          .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
+          .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 12px; color: white; background: ${riskLevel === 'HIGH' ? '#e11d48' : (riskLevel === 'MEDIUM' ? '#f59e0b' : '#10b981')}; }
+          .finding { border-left: 3px solid #cbd5e1; padding: 8px 12px; margin-bottom: 8px; background: white; font-size: 13px; }
+          @media print { button { display: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1 class="title">SIH26106 Forensic Email Threat Report</h1>
+          <div class="subtitle">Official Intelligence Dossier | Generated: ${new Date().toLocaleString()}</div>
+        </div>
+        <div class="box">
+          <div class="grid">
+            <div><strong>Case ID:</strong> ${displayId}</div>
+            <div><strong>Risk Assessment:</strong> <span class="badge">${riskLevel} (Score: ${fraudScore}/100)</span></div>
+            <div><strong>Sender:</strong> ${senderName ? `"${senderName}" ` : ''}&lt;${senderEmail}&gt;</div>
+            <div><strong>Subject:</strong> ${subject}</div>
+          </div>
+        </div>
+        <h3>Security Findings (${findings.length})</h3>
+        ${findings.map(f => `
+          <div class="finding">
+            <strong>${f.check || 'Security Check'}</strong>: ${f.detail || ''} 
+            ${f.score_contribution ? `(+${f.score_contribution} pts)` : ''}
+          </div>
+        `).join('')}
+        <script>
+          window.onload = function() { window.print(); };
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const blockIndex = blockchainReceipt?.block_index || 'N/A';
@@ -84,7 +145,18 @@ const ReportModal = ({ isOpen, onClose, analysisId, blockchainReceipt }) => {
           </div>
         </div>
 
-        {error && <div className="mb-4 text-sm text-red-600 font-medium">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs text-amber-800 font-medium mb-2">{error}</p>
+            <button
+              onClick={handlePrintFallback}
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white rounded-lg py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Printer className="w-4 h-4" />
+              Print / Save Browser PDF
+            </button>
+          </div>
+        )}
 
         <button
           onClick={handleDownload}

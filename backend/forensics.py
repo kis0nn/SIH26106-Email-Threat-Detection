@@ -97,12 +97,18 @@ def batch_geolocate_ips(ips: list[str]) -> dict:
     return {}
 
 
+import concurrent.futures
+_whois_pool = concurrent.futures.ThreadPoolExecutor(max_workers=3)
+
 def get_domain_intel(domain: str) -> dict | None:
     if not domain:
         return None
     try:
-        w = whois.whois(domain)
-        creation_date = w.creation_date
+        f = _whois_pool.submit(whois.whois, domain)
+        w = f.result(timeout=2.0)
+        if not w:
+            return None
+        creation_date = getattr(w, "creation_date", None)
         if isinstance(creation_date, list):
             creation_date = creation_date[0]
 
@@ -113,7 +119,7 @@ def get_domain_intel(domain: str) -> dict | None:
                 "domain": domain,
                 "age_days": age_days,
                 "is_newly_registered": is_newly_registered,
-                "registrar": w.registrar,
+                "registrar": getattr(w, "registrar", None),
                 "created_date": creation_date.isoformat() if hasattr(creation_date, 'isoformat') else str(creation_date)
             }
     except Exception:

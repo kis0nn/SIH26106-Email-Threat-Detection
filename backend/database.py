@@ -45,17 +45,18 @@ def init_db():
 def save_analysis(analysis_dict):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    sender = analysis_dict.get("sender") or {}
     cursor.execute('''
-        INSERT INTO analyses (id, created_at, sender_email, sender_domain, subject, fraud_score, risk_level, result_json)
+        INSERT OR REPLACE INTO analyses (id, created_at, sender_email, sender_domain, subject, fraud_score, risk_level, result_json)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
-        analysis_dict["id"],
-        analysis_dict["created_at"],
-        analysis_dict["sender"]["email"],
-        analysis_dict["sender"]["domain"],
-        analysis_dict["subject"],
-        analysis_dict["fraud_score"],
-        analysis_dict["risk_level"],
+        analysis_dict.get("id"),
+        analysis_dict.get("created_at"),
+        sender.get("email", ""),
+        sender.get("domain", ""),
+        analysis_dict.get("subject", ""),
+        analysis_dict.get("fraud_score", 0),
+        analysis_dict.get("risk_level", "low"),
         json.dumps(analysis_dict)
     ))
     conn.commit()
