@@ -21,25 +21,40 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [autoLoading, setAutoLoading] = useState(false);
 
+  const [initialRaw, setInitialRaw] = useState(null);
+
   // ── Auto-load analysis from URL param ?load=<analysis_id> ──
   // This is triggered when the Chrome Extension opens the dashboard
   // with a specific analysis already done, so the result appears instantly.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const analysisId = params.get('load');
+    const rawParam = params.get('raw');
+
+    if (rawParam) {
+      setInitialRaw(rawParam);
+    }
+
     if (!analysisId) return;
 
     setAutoLoading(true);
     const base = getApiBase();
     fetch(`${base}/analysis/${analysisId}`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error('Analysis not found');
+        return r.json();
+      })
       .then(data => {
         setResult(data);
         setCurrentPage('dashboard');
         // Clean the URL so the param doesn't persist on refresh
         window.history.replaceState({}, '', window.location.pathname);
       })
-      .catch(err => console.error('Auto-load failed:', err))
+      .catch(err => {
+        console.error('Auto-load failed, backend DB might have reset:', err);
+        // Clean URL but leave the raw text prefilled in the textarea
+        window.history.replaceState({}, '', window.location.pathname);
+      })
       .finally(() => setAutoLoading(false));
   }, []);
 
@@ -105,7 +120,7 @@ function App() {
               </div>
             )}
 
-            {!autoLoading && <UploadZone onAnalyze={handleAnalyze} />}
+            {!autoLoading && <UploadZone onAnalyze={handleAnalyze} initialRawEmail={result?.raw_email || initialRaw} />}
 
             {!autoLoading && result && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

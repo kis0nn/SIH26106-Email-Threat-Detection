@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Deep-link: open the dashboard with this specific analysis pre-loaded
-      dashboardLink.href = `${DASHBOARD_URL}/?load=${bgResp.id}`;
+      dashboardLink.href = `${DASHBOARD_URL}/?load=${bgResp.id}&raw=${encodeURIComponent(raw)}`;
 
     } catch (err) {
       setStatus(`Error: ${err.message}`, '#e11d48');

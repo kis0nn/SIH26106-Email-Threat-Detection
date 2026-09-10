@@ -184,7 +184,7 @@ async function scanOpenEmail() {
 
     // Build a deep-link URL so the web app auto-loads this exact analysis
     // Uses live GitHub Pages so it works on any device without local server!
-    const dashboardUrl = `https://kis0nn.github.io/SIH26106-Email-Threat-Detection/?load=${data.id}`;
+    const dashboardUrl = `https://kis0nn.github.io/SIH26106-Email-Threat-Detection/?load=${data.id}&raw=${encodeURIComponent(raw)}`;
 
     banner.innerHTML = `
       ${riskEmoji(data.risk_level)} &nbsp;

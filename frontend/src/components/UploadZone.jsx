@@ -158,12 +158,19 @@ const SAMPLES = [
   }
 ];
 
-const UploadZone = ({ onAnalyze }) => {
+const UploadZone = ({ onAnalyze, initialRawEmail }) => {
   const [activeTab, setActiveTab] = useState('upload');
   const [loading, setLoading] = useState(false);
   const [activeSampleId, setActiveSampleId] = useState(null);
   const [rawText, setRawText] = useState('');
   const [error, setError] = useState('');
+
+  React.useEffect(() => {
+    if (initialRawEmail) {
+      setRawText(initialRawEmail);
+      setActiveTab('paste');
+    }
+  }, [initialRawEmail]);
 
   const handleFileDrop = async (e) => {
     e.preventDefault();

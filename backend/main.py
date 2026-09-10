@@ -224,6 +224,7 @@ def _run_analysis(email_content: str) -> dict:
         "domain_intel": domain_intel,
         "brand_trust": brand_trust,
         "attachments": attachments,
+        "raw_email": email_content,
     }
 
     # ── Persist & Blockchain (Tier 2) ──────────────────────────────────────
