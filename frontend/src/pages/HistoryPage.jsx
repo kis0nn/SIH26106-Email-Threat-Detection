@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Search, Clock, ChevronRight, Loader2, Filter } from 'lucide-react';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
+import { getApiBase } from '../api';
 
 const HistoryPage = ({ onSelectAnalysis }) => {
   const [history, setHistory] = useState([]);
@@ -15,8 +13,9 @@ const HistoryPage = ({ onSelectAnalysis }) => {
   const fetchHistory = async () => {
     try {
       setLoading(true);
+      const base = getApiBase();
       const riskParam = filter === 'All' ? '' : filter.toLowerCase();
-      const response = await axios.get(`${API_BASE}/history`, {
+      const response = await axios.get(`${base}/history`, {
         params: {
           limit: 20,
           offset: 0,
@@ -44,7 +43,8 @@ const HistoryPage = ({ onSelectAnalysis }) => {
   const handleViewAnalysis = async (id) => {
     try {
       setFetchingAnalysis(id);
-      const response = await axios.get(`${API_BASE}/analysis/${id}`);
+      const base = getApiBase();
+      const response = await axios.get(`${base}/analysis/${id}`);
       if (onSelectAnalysis) {
         onSelectAnalysis(response.data);
       }

@@ -13,8 +13,7 @@ import BlockchainReceipt from './components/BlockchainReceipt';
 import ReportModal from './components/ReportModal';
 import AttachmentPanel from './components/AttachmentPanel';
 import HistoryPage from './pages/HistoryPage';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { getApiBase } from './api';
 
 function App() {
   const [result, setResult] = useState(null);
@@ -31,7 +30,8 @@ function App() {
     if (!analysisId) return;
 
     setAutoLoading(true);
-    fetch(`${API_BASE}/analysis/${analysisId}`)
+    const base = getApiBase();
+    fetch(`${base}/analysis/${analysisId}`)
       .then(r => r.json())
       .then(data => {
         setResult(data);

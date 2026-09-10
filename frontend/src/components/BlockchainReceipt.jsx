@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Copy, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { getApiBase } from '../api';
 
 const BlockchainReceipt = ({ blockchainReceipt, analysisId }) => {
   const [verifying, setVerifying] = useState(false);
@@ -20,7 +19,8 @@ const BlockchainReceipt = ({ blockchainReceipt, analysisId }) => {
     setVerifying(true);
     setVerifyResult(null);
     try {
-      const response = await axios.get(`${API_BASE}/verify/${analysisId}`);
+      const base = getApiBase();
+      const response = await axios.get(`${base}/verify/${analysisId}`);
       setVerifyResult(response.data);
     } catch (error) {
       console.error("Verification failed", error);

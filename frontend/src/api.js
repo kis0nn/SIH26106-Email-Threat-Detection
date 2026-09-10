@@ -4,15 +4,30 @@ import { analyzeEmailClientSide } from './offlineEngine';
 // Always fall back to localhost:8000 — never use an empty string in prod
 // because there is no hosted backend (only the React static site is hosted).
 // The local FastAPI server must be running for PDF, blockchain verify, and history features.
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const getApiBase = () => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('sih_api_url');
+    if (saved) return saved.trim().replace(/\/$/, '');
+  }
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.trim().replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:8000';
+  }
+  return 'https://sih26106-backend.onrender.com';
+};
+
+const API_BASE = getApiBase();
 
 export const analyzeEmail = async (file) => {
+  const base = getApiBase();
   try {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await axios.post(`${API_BASE}/analyze`, formData, {
+    const response = await axios.post(`${base}/analyze`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      timeout: 30000,
+      timeout: 60000,
     });
     return response.data;
   } catch (err) {
@@ -23,10 +38,11 @@ export const analyzeEmail = async (file) => {
 };
 
 export const analyzeRawEmail = async (rawEmail) => {
+  const base = getApiBase();
   try {
-    const response = await axios.post(`${API_BASE}/analyze`, { raw_email: rawEmail }, {
+    const response = await axios.post(`${base}/analyze`, { raw_email: rawEmail }, {
       headers: { 'Content-Type': 'application/json' },
-      timeout: 30000,
+      timeout: 60000,
     });
     return response.data;
   } catch (err) {
@@ -36,8 +52,9 @@ export const analyzeRawEmail = async (rawEmail) => {
 };
 
 export const checkHealth = async () => {
+  const base = getApiBase();
   try {
-    const response = await axios.get(`${API_BASE}/health`, { timeout: 4000 });
+    const response = await axios.get(`${base}/health`, { timeout: 8000 });
     return response.data;
   } catch (err) {
     return { status: 'offline', mode: 'client-fallback' };
@@ -45,15 +62,17 @@ export const checkHealth = async () => {
 };
 
 export const verifyChain = async (analysisId) => {
-  const response = await axios.get(`${API_BASE}/verify/${analysisId}`, { timeout: 10000 });
+  const base = getApiBase();
+  const response = await axios.get(`${base}/verify/${analysisId}`, { timeout: 15000 });
   return response.data;
 };
 
 export const downloadReport = async (analysisId, maskPii = false, analysisData = null) => {
+  const base = getApiBase();
   const response = await axios.post(
-    `${API_BASE}/report/${analysisId}?mask_pii=${maskPii}`,
+    `${base}/report/${analysisId}?mask_pii=${maskPii}`,
     analysisData || {},
-    { responseType: 'blob', timeout: 35000 }
+    { responseType: 'blob', timeout: 60000 }
   );
   return response.data;
 };
