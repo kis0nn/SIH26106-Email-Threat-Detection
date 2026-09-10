@@ -10,28 +10,36 @@ const ReportModal = ({ isOpen, onClose, analysisId, blockchainReceipt }) => {
   if (!isOpen) return null;
 
   const handleDownload = async () => {
+    if (!analysisId) {
+      setError('No analysis ID. Please scan an email first.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const API_BASE = import.meta.env.VITE_API_URL !== undefined 
-        ? import.meta.env.VITE_API_URL 
-        : (import.meta.env.PROD ? '' : 'http://localhost:8000');
+      // Always use the local backend — the PDF generation requires the FastAPI server
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         
       const response = await axios.post(`${API_BASE}/report/${analysisId}?mask_pii=${maskPii}`, null, {
-        responseType: 'blob'
+        responseType: 'blob',
+        timeout: 15000
       });
 
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `forensic_report_${analysisId}.pdf`);
+      link.setAttribute('download', `forensic_report_${analysisId.substring(0,8)}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      setError('Failed to download report. Please try again.');
+      if (err.code === 'ECONNREFUSED' || err.message.includes('Network Error')) {
+        setError('⚠️ Backend not running. Start it with: uvicorn main:app --port 8000');
+      } else {
+        setError(`Failed to generate report: ${err.response?.status || err.message}`);
+      }
       console.error('Download error:', err);
     } finally {
       setLoading(false);
