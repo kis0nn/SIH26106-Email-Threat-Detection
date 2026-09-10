@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { FileText, X, Download, Loader2, Shield } from 'lucide-react';
+import { downloadReport } from '../api';
 
 const ReportModal = ({ isOpen, onClose, analysisId, blockchainReceipt }) => {
   const [maskPii, setMaskPii] = useState(false);
@@ -11,36 +11,27 @@ const ReportModal = ({ isOpen, onClose, analysisId, blockchainReceipt }) => {
 
   const handleDownload = async () => {
     if (!analysisId) {
-      setError('No analysis ID. Please scan an email first.');
+      setError('No analysis found. Please scan an email first, then try again.');
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      // Always use the local backend — the PDF generation requires the FastAPI server
-      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-        
-      const response = await axios.post(`${API_BASE}/report/${analysisId}?mask_pii=${maskPii}`, null, {
-        responseType: 'blob',
-        timeout: 15000
-      });
-
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
+      const blob = await downloadReport(analysisId, maskPii);
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `forensic_report_${analysisId.substring(0,8)}.pdf`);
+      link.setAttribute('download', `forensic_report_${analysisId.substring(0, 8)}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      if (err.code === 'ECONNREFUSED' || err.message.includes('Network Error')) {
-        setError('⚠️ Backend not running. Start it with: uvicorn main:app --port 8000');
-      } else {
-        setError(`Failed to generate report: ${err.response?.status || err.message}`);
-      }
-      console.error('Download error:', err);
+      const msg = err?.response?.status === 404
+        ? 'Analysis not found. The backend database may have been reset.'
+        : 'Could not connect to backend. Make sure start.bat is running.';
+      setError(`⚠️ ${msg}`);
+      console.error('PDF download error:', err);
     } finally {
       setLoading(false);
     }

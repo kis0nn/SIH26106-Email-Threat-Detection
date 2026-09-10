@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { analyzeEmailClientSide } from './offlineEngine';
 
-const API_BASE = import.meta.env.VITE_API_URL !== undefined
-  ? import.meta.env.VITE_API_URL
-  : (import.meta.env.PROD ? '' : 'http://localhost:8000');
+// Always fall back to localhost:8000 — never use an empty string in prod
+// because there is no hosted backend (only the React static site is hosted).
+// The local FastAPI server must be running for PDF, blockchain verify, and history features.
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const analyzeEmail = async (file) => {
   try {
