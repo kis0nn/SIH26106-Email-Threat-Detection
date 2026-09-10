@@ -135,7 +135,7 @@ function App() {
                   
                   {/* Right Column */}
                   <div className="space-y-6">
-                    <GeoMap geolocation={result.geolocation} />
+                    <GeoMap geolocation={result.geolocation} relayAnalysis={result.relay_analysis} />
                     <RelayPathViz relayAnalysis={result.relay_analysis} />
                     <BlockchainReceipt 
                       blockchainReceipt={result.blockchain_receipt} 

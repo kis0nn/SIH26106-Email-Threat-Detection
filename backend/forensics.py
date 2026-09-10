@@ -2,12 +2,47 @@ import requests
 import whois
 from datetime import datetime
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
+# IPs that should NEVER be geolocated — they are fake/documentation/provider IPs
+PRIVATE_RE = re.compile(
+    r'^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.|0\.)'
+)
+# RFC 5737 documentation ranges — used in examples/tests, NOT real routable IPs
+DOCUMENTATION_PREFIXES = ('192.0.2.', '198.51.100.', '203.0.113.')
+# Major mail provider relay IP prefixes — these are relay hops, not the true sender
+PROVIDER_PREFIXES = (
+    '209.85.', '74.125.', '66.102.', '64.233.', '72.14.',
+    '108.177.', '142.250.', '172.217.', '216.58.',
+    '40.92.', '40.107.', '52.100.', '104.47.',
+    '98.136.', '66.196.', '67.195.',
+    '199.255.192.', '199.127.232.',
+    '167.89.', '208.117.', '198.2.', '205.201.',
+)
+
+def is_bogon_ip(ip: str) -> bool:
+    """Return True if this IP should NOT be geolocated (private, doc, or provider relay)."""
+    if not ip:
+        return True
+    if PRIVATE_RE.match(ip):
+        return True
+    if any(ip.startswith(p) for p in DOCUMENTATION_PREFIXES):
+        return True
+    if any(ip.startswith(p) for p in PROVIDER_PREFIXES):
+        return True
+    return False
+
 def get_ip_geolocation(ip: str) -> dict | None:
+    """Geolocate a single IP. Returns None if IP is bogon/provider/documentation."""
+    if not ip or is_bogon_ip(ip):
+        return None
     try:
-        resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,regionName,city,lat,lon,isp,org", timeout=5)
+        resp = requests.get(
+            f"http://ip-api.com/json/{ip}?fields=status,message,country,regionName,city,lat,lon,isp,org",
+            timeout=5
+        )
         if resp.status_code == 200:
             data = resp.json()
             if data.get("status") == "success":
@@ -27,28 +62,23 @@ def get_ip_geolocation(ip: str) -> dict | None:
 
 def batch_geolocate_ips(ips: list[str]) -> dict:
     """
-    Geolocate multiple IPs in one call using ip-api's batch endpoint.
+    Geolocate multiple IPs using ip-api's batch endpoint.
+    Skips private, RFC 5737 documentation, and known provider relay IPs.
     Returns a dict mapping IP -> {"country": str, "city": str}.
-    Falls back to empty results on failure.
     """
     if not ips:
         return {}
     try:
-        # Deduplicate and filter out private/null IPs
-        import re
         unique_ips = []
         seen = set()
         for ip in ips:
-            if ip and ip not in seen:
-                # Skip private IPs
-                if not re.match(r'^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.)', ip):
-                    unique_ips.append(ip)
-                    seen.add(ip)
+            if ip and ip not in seen and not is_bogon_ip(ip):
+                unique_ips.append(ip)
+                seen.add(ip)
 
         if not unique_ips:
             return {}
 
-        # ip-api batch endpoint (max 100 IPs per call)
         batch_payload = [{"query": ip, "fields": "status,query,country,city"} for ip in unique_ips[:100]]
         resp = requests.post("http://ip-api.com/batch", json=batch_payload, timeout=10)
 
@@ -66,6 +96,7 @@ def batch_geolocate_ips(ips: list[str]) -> dict:
         logger.warning("Batch IP geolocation failed: %s", e)
     return {}
 
+
 def get_domain_intel(domain: str) -> dict | None:
     if not domain:
         return None
@@ -74,7 +105,7 @@ def get_domain_intel(domain: str) -> dict | None:
         creation_date = w.creation_date
         if isinstance(creation_date, list):
             creation_date = creation_date[0]
-            
+
         if creation_date:
             age_days = (datetime.now() - creation_date).days
             is_newly_registered = age_days < 30

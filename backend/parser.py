@@ -16,10 +16,10 @@ PROVIDER_PREFIXES = (
     '98.136.', '66.196.', '67.195.',
     # Amazon SES
     '199.255.192.', '199.127.232.',
-    # SendGrid
-    '167.89.', '208.117.',
-    # Mailchimp / Mandrill
-    '198.2.', '205.201.',
+    # SendGrid / Mailchimp
+    '167.89.', '208.117.', '198.2.', '205.201.',
+    # RFC 5737 documentation/example IPs — NOT real, used in test emails
+    '192.0.2.', '198.51.100.', '203.0.113.',
 )
 
 def is_provider_ip(ip: str) -> bool:
