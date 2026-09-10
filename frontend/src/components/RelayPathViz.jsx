@@ -1,6 +1,16 @@
 import React from 'react';
 import { Server, Share2, MapPin, AlertTriangle } from 'lucide-react';
 
+// Fake / documentation / provider IPs — don't show their geo as location
+const BOGON_PREFIXES = [
+  '192.0.2.', '198.51.100.', '203.0.113.',   // RFC 5737 doc IPs
+  '10.', '127.', '192.168.', '0.',             // private ranges
+  '209.85.', '74.125.', '66.102.', '64.233.', // Google
+  '40.92.', '40.107.', '52.100.', '104.47.',  // Microsoft
+  '98.136.', '66.196.', '67.195.',             // Yahoo
+];
+const isBogon = ip => !ip || BOGON_PREFIXES.some(p => ip.startsWith(p));
+
 const RelayPathViz = ({ relayAnalysis }) => {
   if (!relayAnalysis || !relayAnalysis.hops || relayAnalysis.hops.length === 0) {
     return (
@@ -71,12 +81,20 @@ const RelayPathViz = ({ relayAnalysis }) => {
                   <span className="text-gray-500 block">Timestamp</span>
                   <span className="text-gray-700">{hopData.timestamp ? new Date(hopData.timestamp).toLocaleString() : 'Unknown'}</span>
                 </div>
-                {(hopData.country || hopData.city) && (
+                {/* Only show location if IP is a real, non-bogon address */}
+                {!isBogon(hopData.ip) && (hopData.country || hopData.city) && (
                   <div className="sm:col-span-2">
                     <span className="text-gray-500 block">Location</span>
                     <span className="text-gray-700 flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-blue-500" />
                       {hopData.city ? `${hopData.city}, ` : ''}{hopData.country || 'Unknown'}
+                    </span>
+                  </div>
+                )}
+                {isBogon(hopData.ip) && hopData.ip && (
+                  <div className="sm:col-span-2">
+                    <span className="text-gray-400 text-[11px] italic">
+                      Example / relay IP — location not available
                     </span>
                   </div>
                 )}

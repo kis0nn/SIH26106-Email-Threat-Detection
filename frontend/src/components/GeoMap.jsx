@@ -30,32 +30,36 @@ function isBogon(ip) {
 }
 
 const GeoMap = ({ geolocation, relayAnalysis }) => {
-  // Use the backend-resolved geolocation as primary.
-  // If it's null/invalid (e.g., all IPs were bogons), look through relay hops
-  // for a hop that has location data resolved server-side.
-  let geo = geolocation;
+  // Start with backend-provided geo, but DISCARD it if the IP is bogon —
+  // this handles old cached analyses that geolocated RFC5737 doc IPs and got random cities.
+  let geo = (geolocation && geolocation.ip && !isBogon(geolocation.ip))
+    ? geolocation
+    : null;
 
-  // Try to find a geolocated hop from the relay chain if main geo is missing
-  if ((!geo || !geo.lat) && relayAnalysis?.hops) {
+  // Fallback: scan relay hops for the first hop that has a real non-bogon IP
+  // AND valid geo coordinates (lat/lon must be present on the hop object).
+  if (!geo && relayAnalysis?.hops) {
     const geoHop = relayAnalysis.hops.find(
-      h => h.geo?.lat && h.geo?.lon && !isBogon(h.ip)
+      h => h.lat && h.lon && h.ip && !isBogon(h.ip)
     );
     if (geoHop) {
       geo = {
-        ip: geoHop.ip,
-        lat: geoHop.geo.lat,
-        lon: geoHop.geo.lon,
-        city: geoHop.geo.city,
-        country: geoHop.geo.country,
-        isp: geoHop.geo.isp || null,
-        org: geoHop.geo.org || null,
+        ip:      geoHop.ip,
+        lat:     geoHop.lat,
+        lon:     geoHop.lon,
+        city:    geoHop.city,
+        country: geoHop.country,
+        isp:     geoHop.isp || null,
+        org:     geoHop.org  || null,
       };
     }
   }
 
-  // Check if all relay IPs are bogon/demo IPs
-  const allBogon = relayAnalysis?.hops?.length > 0
-    && relayAnalysis.hops.every(h => isBogon(h.ip));
+  // Check if ALL relay IPs are bogon (e.g. demo sample emails)
+  const allBogon = !!(
+    relayAnalysis?.hops?.length > 0 &&
+    relayAnalysis.hops.every(h => isBogon(h.ip))
+  );
 
   if (!geo || !geo.lat || !geo.lon) {
     return (
