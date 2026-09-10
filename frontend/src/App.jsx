@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Shield, FileText, History, LayoutDashboard } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, FileText, History, LayoutDashboard, Loader2 } from 'lucide-react';
 import UploadZone from './components/UploadZone';
 import RiskBadge from './components/RiskBadge';
 import FindingsPanel from './components/FindingsPanel';
@@ -14,10 +14,34 @@ import ReportModal from './components/ReportModal';
 import AttachmentPanel from './components/AttachmentPanel';
 import HistoryPage from './pages/HistoryPage';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 function App() {
   const [result, setResult] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [autoLoading, setAutoLoading] = useState(false);
+
+  // ── Auto-load analysis from URL param ?load=<analysis_id> ──
+  // This is triggered when the Chrome Extension opens the dashboard
+  // with a specific analysis already done, so the result appears instantly.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const analysisId = params.get('load');
+    if (!analysisId) return;
+
+    setAutoLoading(true);
+    fetch(`${API_BASE}/analysis/${analysisId}`)
+      .then(r => r.json())
+      .then(data => {
+        setResult(data);
+        setCurrentPage('dashboard');
+        // Clean the URL so the param doesn't persist on refresh
+        window.history.replaceState({}, '', window.location.pathname);
+      })
+      .catch(err => console.error('Auto-load failed:', err))
+      .finally(() => setAutoLoading(false));
+  }, []);
 
   const handleAnalyze = (data) => {
     setResult(data);
@@ -73,9 +97,17 @@ function App() {
           <HistoryPage onSelectAnalysis={handleAnalyze} />
         ) : (
           <>
-            <UploadZone onAnalyze={handleAnalyze} />
+            {/* Auto-loading spinner — shown when extension triggers a load */}
+            {autoLoading && (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+                <p className="text-gray-600 font-medium">Loading analysis from Chrome Extension…</p>
+              </div>
+            )}
 
-            {result && (
+            {!autoLoading && <UploadZone onAnalyze={handleAnalyze} />}
+
+            {!autoLoading && result && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <GovDomainBanner sender={result.sender} />
 

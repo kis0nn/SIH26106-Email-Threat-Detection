@@ -181,13 +181,17 @@ async function scanOpenEmail() {
     banner.style.background  = c.bg;
     banner.style.color       = c.text;
     banner.style.borderColor = c.border;
+
+    // Build a deep-link URL so the web app auto-loads this exact analysis
+    const dashboardUrl = `http://localhost:5173/?load=${data.id}`;
+
     banner.innerHTML = `
       ${riskEmoji(data.risk_level)} &nbsp;
       <strong>SIH26106:</strong> &nbsp;
       ${risk} RISK &nbsp;—&nbsp; Score: ${score}/100
       ${detailStr}
       &nbsp;&nbsp;
-      <a href="http://localhost:5173"
+      <a href="${dashboardUrl}"
          target="_blank"
          style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;
                 text-decoration:none;border:1px solid ${c.border};color:${c.text};background:white;">

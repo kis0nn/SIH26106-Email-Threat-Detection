@@ -85,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
         govWarningEl.style.display = 'none';
       }
 
-      dashboardLink.href = DASHBOARD_URL;
+      // Deep-link: open the dashboard with this specific analysis pre-loaded
+      dashboardLink.href = `${DASHBOARD_URL}/?load=${bgResp.id}`;
 
     } catch (err) {
       setStatus(`Error: ${err.message}`, '#e11d48');
