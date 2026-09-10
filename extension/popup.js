@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const govWarningEl = document.getElementById('govWarn');
   const dashboardLink = document.getElementById('dashboardLink');
 
-  const DASHBOARD_URL = 'http://localhost:5173';
+  const DASHBOARD_URL = 'https://kis0nn.github.io/SIH26106-Email-Threat-Detection';
 
   function setStatus(msg, color = '#4b5563') {
     statusEl.textContent = msg;

@@ -183,7 +183,8 @@ async function scanOpenEmail() {
     banner.style.borderColor = c.border;
 
     // Build a deep-link URL so the web app auto-loads this exact analysis
-    const dashboardUrl = `http://localhost:5173/?load=${data.id}`;
+    // Uses live GitHub Pages so it works on any device without local server!
+    const dashboardUrl = `https://kis0nn.github.io/SIH26106-Email-Threat-Detection/?load=${data.id}`;
 
     banner.innerHTML = `
       ${riskEmoji(data.risk_level)} &nbsp;
@@ -202,7 +203,7 @@ async function scanOpenEmail() {
     banner.style.background = '#fff7ed';
     banner.style.color = '#92400e';
     banner.style.borderColor = '#fcd34d';
-    banner.innerHTML = '⚠️ SIH26106: Could not reach backend (http://localhost:8000). Is it running?';
+    banner.innerHTML = `⚠️ SIH26106 Threat Engine: ${err.message || 'Connecting to server…'}`;
   }
 }
 
